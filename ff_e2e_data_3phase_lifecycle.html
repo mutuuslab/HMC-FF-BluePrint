@@ -1,116 +1,371 @@
 <style>
-*{box-sizing:border-box;margin:0}.w{font-family:var(--font-sans);color:var(--color-text-primary)}
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:6px}
-.tab{padding:6px 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px 6px 0 0;color:var(--color-text-secondary);border:1px solid transparent;border-bottom:none;transition:all .12s}
-.tab:hover{background:var(--color-background-secondary)}
-.tab.on{background:var(--color-background-primary);border-color:var(--color-border-tertiary);border-bottom:1px solid var(--color-background-primary);margin-bottom:-1px;z-index:1;color:var(--color-text-primary)}
-.pnl{display:none}.pnl.on{display:block}
-.phase-h{font-size:9px;color:var(--color-text-tertiary);margin-bottom:6px;line-height:1.4}
-.flow{display:flex;gap:0;overflow-x:auto;padding:2px 0}
-.step{flex:0 0 auto;width:92px;position:relative}
-.step-box{border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:5px;text-align:center;font-size:10px;font-weight:500;background:var(--color-background-primary);position:relative;min-height:38px;display:flex;align-items:center;justify-content:center;line-height:1.2}
-.step-box.hl{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
-.step-arr{position:absolute;right:-4px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--color-text-tertiary);z-index:1}
-.step-data{margin-top:3px;font-size:8px;color:var(--color-text-secondary);line-height:1.3;text-align:center;min-height:48px}
-.step-tool{margin-top:2px;font-size:7px;color:var(--color-text-tertiary);text-align:center}
-.sect{margin-top:8px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:6px 8px}
-.sect b{font-size:10px;color:var(--color-text-primary);display:block;margin-bottom:3px}
-.sect-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
-@media(max-width:500px){.sect-grid{grid-template-columns:1fr}}
-.sect-item{font-size:9px;padding:4px 6px;background:var(--color-background-secondary);border-radius:4px;line-height:1.35;color:var(--color-text-secondary)}
-.sect-item span{font-weight:500;color:var(--color-text-primary)}
-.c{display:inline-block;font-size:7px;padding:1px 3px;border-radius:2px;margin:0 1px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);font-family:var(--font-mono)}
-.note{margin-top:6px;padding:5px 8px;background:var(--color-background-secondary);border-radius:6px;font-size:9px;color:var(--color-text-tertiary);line-height:1.4}
-.note b{color:var(--color-text-secondary)}
+*{box-sizing:border-box;margin:0}
+.lc-w{font-family:var(--font-sans);color:var(--color-text-primary)}
+/* E2E reference bar */
+.lc-e2e{display:flex;gap:0;overflow-x:auto;padding:4px 0;margin-bottom:8px;border:1px solid var(--color-border-tertiary);border-radius:8px;background:var(--color-background-secondary)}
+.lc-e2e-seg{flex:1;text-align:center;padding:4px 6px;font-size:8px;font-weight:600;color:var(--color-text-tertiary);border-right:1px solid var(--color-border-tertiary);cursor:pointer;transition:all .12s;line-height:1.3;min-width:60px}
+.lc-e2e-seg:last-child{border-right:none}
+.lc-e2e-seg:hover{background:var(--color-background-primary)}
+.lc-e2e-seg.lc-on{background:var(--color-background-primary);color:var(--color-text-info);font-weight:700}
+.lc-e2e-seg small{display:block;font-weight:400;font-size:7px;color:var(--color-text-tertiary);margin-top:1px}
+/* Phase tabs */
+.lc-tabs{display:flex;gap:2px;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:0}
+.lc-tab{padding:7px 14px;font-size:11px;font-weight:600;cursor:pointer;border-radius:8px 8px 0 0;color:var(--color-text-secondary);border:1px solid transparent;border-bottom:none;transition:all .12s;user-select:none}
+.lc-tab:hover{background:var(--color-background-secondary)}
+.lc-tab.lc-on{background:var(--color-background-primary);border-color:var(--color-border-tertiary);border-bottom:1px solid var(--color-background-primary);margin-bottom:-1px;z-index:1;color:var(--color-text-primary)}
+.lc-tab .lc-badge{font-size:8px;padding:1px 4px;border-radius:3px;margin-left:4px;vertical-align:middle}
+.lc-badge-pre{background:#E6F1FB;color:#0C447C}
+.lc-badge-sop{background:#E1F5EE;color:#085041}
+.lc-badge-post{background:#EEEDFE;color:#3C3489}
+@media(prefers-color-scheme:dark){.lc-badge-pre{background:#0C447C;color:#B5D4F4}.lc-badge-sop{background:#085041;color:#9FE1CB}.lc-badge-post{background:#3C3489;color:#CECBF6}}
+/* Phase panel */
+.lc-pnl{display:none}.lc-pnl.lc-on{display:block}
+.lc-phase-desc{font-size:9px;color:var(--color-text-tertiary);padding:8px 10px 6px;line-height:1.5;border:1px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 8px 8px;margin-bottom:8px;background:var(--color-background-secondary)}
+/* Step flow (horizontal) */
+.lc-flow{display:flex;gap:0;overflow-x:auto;padding:4px 0}
+.lc-step{flex:0 0 auto;width:100px;position:relative;cursor:pointer;transition:transform .1s}
+.lc-step:hover{transform:translateY(-1px)}
+.lc-step-box{border:1px solid var(--color-border-tertiary);border-radius:8px;padding:6px 4px;text-align:center;font-size:10px;font-weight:600;background:var(--color-background-primary);min-height:40px;display:flex;align-items:center;justify-content:center;line-height:1.25;transition:all .12s}
+.lc-step.lc-on .lc-step-box{border-color:var(--color-border-info);background:var(--color-background-info);color:var(--color-text-info);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.lc-step-num{font-size:7px;font-weight:700;color:var(--color-text-tertiary);text-align:center;margin-bottom:2px}
+.lc-step-arr{position:absolute;right:-5px;top:50%;transform:translateY(-50%);font-size:9px;color:var(--color-text-tertiary);z-index:1}
+.lc-step-tools{margin-top:3px;text-align:center}
+.lc-chip{display:inline-block;font-size:7px;padding:1px 4px;border-radius:3px;margin:1px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);font-family:var(--font-mono);color:var(--color-text-secondary)}
+/* Detail panel (3rd depth) */
+.lc-detail{margin-top:8px;border:1px solid var(--color-border-tertiary);border-radius:10px;overflow:hidden;display:none}
+.lc-detail.lc-on{display:block}
+.lc-detail-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--color-background-secondary);border-bottom:1px solid var(--color-border-tertiary)}
+.lc-detail-title{font-size:12px;font-weight:600}
+.lc-detail-close{font-size:10px;cursor:pointer;color:var(--color-text-tertiary);padding:2px 6px;border-radius:4px}
+.lc-detail-close:hover{background:var(--color-background-primary)}
+/* Sub-tabs inside detail */
+.lc-stabs{display:flex;gap:0;border-bottom:1px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.lc-stab{flex:1;text-align:center;padding:5px 8px;font-size:10px;font-weight:500;cursor:pointer;color:var(--color-text-tertiary);border-bottom:2px solid transparent;transition:all .1s}
+.lc-stab:hover{color:var(--color-text-secondary)}
+.lc-stab.lc-on{color:var(--color-text-info);border-bottom-color:var(--color-text-info);font-weight:600}
+.lc-spnl{display:none;padding:10px 12px}.lc-spnl.lc-on{display:block}
+/* Content blocks */
+.lc-kv{display:grid;grid-template-columns:100px 1fr;gap:4px 8px;font-size:9px;line-height:1.5;margin:4px 0}
+.lc-kv dt{font-weight:600;color:var(--color-text-primary)}.lc-kv dd{color:var(--color-text-secondary);margin:0}
+.lc-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+@media(max-width:500px){.lc-grid3{grid-template-columns:1fr}}
+.lc-card{font-size:9px;padding:5px 7px;background:var(--color-background-secondary);border-radius:6px;line-height:1.4;color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.lc-card b{color:var(--color-text-primary);display:block;font-size:10px;margin-bottom:1px}
+.lc-gate{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:4px}
+.lc-gate-item{padding:5px 7px;border-radius:6px;font-size:9px;line-height:1.4;border-left:3px solid var(--color-border-info);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.lc-gate-item b{color:var(--color-text-primary);display:block}
+.lc-asil{display:inline-block;font-size:7px;font-weight:700;padding:1px 4px;border-radius:3px;margin-left:3px}
+.lc-asil-d{background:#FAEEDA;color:#633806}.lc-asil-b{background:#FDE8E8;color:#8C1A11}.lc-asil-qm{background:var(--color-background-secondary);color:var(--color-text-tertiary)}
+@media(prefers-color-scheme:dark){.lc-asil-d{background:#633806;color:#FAC775}.lc-asil-b{background:#8C1A11;color:#F9A8A8}}
+.lc-note{margin-top:6px;padding:6px 8px;background:var(--color-background-secondary);border-radius:6px;font-size:9px;color:var(--color-text-tertiary);line-height:1.5}
+.lc-note b{color:var(--color-text-secondary)}
+.lc-sub-flow{display:flex;gap:0;align-items:center;margin:6px 0;overflow-x:auto}
+.lc-sub-node{flex:0 0 auto;padding:4px 8px;font-size:8px;font-weight:500;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;text-align:center;line-height:1.3;color:var(--color-text-secondary)}
+.lc-sub-arr{flex:0 0 auto;font-size:8px;color:var(--color-text-tertiary);padding:0 1px}
 </style>
-<div class="w">
-<div class="tabs">
-<div class="tab on" onclick="sw(0)">Pre-SOP (개발중)</div>
-<div class="tab" onclick="sw(1)">SOP (생산)</div>
-<div class="tab" onclick="sw(2)">Post-SOP (양산 후 운영)</div>
+
+<div class="lc-w">
+
+<!-- ====== E2E Reference Bar ====== -->
+<div class="lc-e2e" id="lcE2eBar">
+<div class="lc-e2e-seg lc-on" data-phase="0" onclick="lcE2eClick(0)">Plan<small>Feature Req</small></div>
+<div class="lc-e2e-seg" data-phase="0" onclick="lcE2eClick(0)">Spec<small>Flag YAML</small></div>
+<div class="lc-e2e-seg" data-phase="0" onclick="lcE2eClick(0)">Arch<small>Toggle Point</small></div>
+<div class="lc-e2e-seg" data-phase="0" onclick="lcE2eClick(0)">Impl<small>SDK Code</small></div>
+<div class="lc-e2e-seg" data-phase="0" onclick="lcE2eClick(0)">CI/Build<small>Pipeline</small></div>
+<div class="lc-e2e-seg" data-phase="0" onclick="lcE2eClick(0)">V&V<small>SIL/HIL</small></div>
+<div class="lc-e2e-seg" data-phase="0" onclick="lcE2eClick(0)">Gate<small>Supplier</small></div>
+<div class="lc-e2e-seg" data-phase="1" onclick="lcE2eClick(1)" style="border-left:2px solid var(--color-border-info)">Order<small>VIN/BOM</small></div>
+<div class="lc-e2e-seg" data-phase="1" onclick="lcE2eClick(1)">Variant<small>VCDM</small></div>
+<div class="lc-e2e-seg" data-phase="1" onclick="lcE2eClick(1)">FF Init<small>Config</small></div>
+<div class="lc-e2e-seg" data-phase="1" onclick="lcE2eClick(1)">Flash<small>SOTA+NVM</small></div>
+<div class="lc-e2e-seg" data-phase="1" onclick="lcE2eClick(1)">EOL<small>Validate</small></div>
+<div class="lc-e2e-seg" data-phase="1" onclick="lcE2eClick(1)">Ship<small>Snapshot</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)" style="border-left:2px solid var(--color-border-info)">Campaign<small>Targeting</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)">COTA<small>Push</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)">Canary<small>Ring 1</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)">Rollout<small>Ring 2-4</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)">FoD<small>Activate</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)">Monitor<small>DORA 5</small></div>
+<div class="lc-e2e-seg" data-phase="2" onclick="lcE2eClick(2)">Kill-sw<small>Emergency</small></div>
 </div>
 
-<div class="pnl on" id="p0">
-<div class="phase-h">차량 개발 단계 — 실차 없음. vECU / SIL / HIL 환경에서 FF를 설계·구현·검증. Flag Spec 정의부터 Shadow Flag 검증까지.</div>
-<div class="flow">
-<div class="step"><div class="step-box">Feature planning</div><div class="step-data">Product planning → Feature Req → Jira backlog</div><div class="step-tool"><span class="c">Jira</span><span class="c">Confluence</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">REQ / Flag Spec</div><div class="step-data">SYS/SW REQ → Feature-Function map → Flag Spec YAML</div><div class="step-tool"><span class="c">Codebeamer</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Architecture</div><div class="step-data">Toggle Point 배치 · Fail-safe 설계 · ASIL 분류 · Dual-ch</div><div class="step-tool"><span class="c">EA</span><span class="c">PREEvision</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Implementation</div><div class="step-data">FF SDK 통합 · Latch-at-Init · 코딩 패턴 적용</div><div class="step-tool"><span class="c">Bitbucket</span><span class="c">MATLAB</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box hl">CI / Build</div><div class="step-data">6-Stage pipeline · MISRA-C · ON/OFF coverage · COTA/SOTA pkg</div><div class="step-tool"><span class="c">Bamboo</span><span class="c">SonarQube</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box hl">V&V (virtual)</div><div class="step-data">vECU L1-3 · SIL/HIL · Shadow Flag · 조합 테스트</div><div class="step-tool"><span class="c">Simulink</span><span class="c">vECU</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Supplier gate</div><div class="step-data">ES95411 검증 · 납품물 11종 · SDK conformance</div><div class="step-tool"><span class="c">PolySpace</span></div></div>
-</div>
-<div class="sect">
-<b>Pre-SOP FF data objects</b>
-<div class="sect-grid">
-<div class="sect-item"><span>Feature ID</span> — canonical identifier, Jira→Codebeamer→Bitbucket 관통</div>
-<div class="sect-item"><span>Flag Spec YAML</span> — type, owner, TTL, ASIL class, targeting rule, default value</div>
-<div class="sect-item"><span>Toggle Point code</span> — eval point + apply point, Latch-at-Init pattern</div>
-<div class="sect-item"><span>vECU test result</span> — ON/OFF coverage 100%, NVRAM fallback 검증</div>
-<div class="sect-item"><span>Shadow Flag result</span> — 신규 로직 병행 실행 + 기존 로직 비교 데이터</div>
-<div class="sect-item"><span>Supplier delivery pkg</span> — ES95411 검증서, SDK conformance, 납품물 체크리스트</div>
-</div>
-</div>
-<div class="note"><b>핵심:</b> 실차가 없으므로 모든 FF 검증은 vECU + SIL/HIL에서 수행. NVRAM fallback(Fail-safe L3)을 검증하려면 vECU Level 3(BSW NVM 포함)이 필수. Shadow Flag으로 신규 알고리즘을 기존 대비 사전 비교 가능.</div>
+<!-- ====== Phase Tabs (Depth 1) ====== -->
+<div class="lc-tabs">
+<div class="lc-tab lc-on" onclick="lcPhase(0)">Pre-SOP<span class="lc-badge lc-badge-pre">7 steps</span></div>
+<div class="lc-tab" onclick="lcPhase(1)">SOP<span class="lc-badge lc-badge-sop">6 steps</span></div>
+<div class="lc-tab" onclick="lcPhase(2)">Post-SOP<span class="lc-badge lc-badge-post">7 steps</span></div>
 </div>
 
-<div class="pnl" id="p1">
-<div class="phase-h">양산 라인에서 차량 생산 — VIN별 초기 FF config 주입. Variant Coding baseline 위에 FF 초기 상태를 Factory flash로 기록.</div>
-<div class="flow">
-<div class="step"><div class="step-box">Order / BOM</div><div class="step-data">VIN 생성 · Trim/옵션 확정 · 시장/지역 결정</div><div class="step-tool"><span class="c">ERP/MES</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Variant Coding</div><div class="step-data">VCDM-P → HW/SW variant baseline per VIN</div><div class="step-tool"><span class="c">VCDM</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box hl">FF initial config</div><div class="step-data">Flag default values · Region gate · Trim-specific flags</div><div class="step-tool"><span class="c">FF Platform</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Factory flash</div><div class="step-data">SOTA binary + FF NVRAM defaults → ECU flash</div><div class="step-tool"><span class="c">EOL Tester</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">EOL test</div><div class="step-data">FF 초기 상태 검증 · DTC check · Fail-safe L4 확인</div><div class="step-tool"><span class="c">EOL Tester</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Ship</div><div class="step-data">VIN + FF config snapshot → 출고 기록</div><div class="step-tool"><span class="c">MES</span></div></div>
-</div>
-<div class="sect">
-<b>SOP FF data objects</b>
-<div class="sect-grid">
-<div class="sect-item"><span>VIN-level FF config</span> — variant baseline + flag defaults per VIN</div>
-<div class="sect-item"><span>NVRAM initial state</span> — Fail-safe L3 기본값, factory flash 시점에 기록</div>
-<div class="sect-item"><span>Region/Trim gate</span> — 시장별 컴플라이언스 플래그 초기값 (예: EU DRL)</div>
-<div class="sect-item"><span>EOL validation</span> — FF 초기 상태 정상 확인, DTC clear 확인</div>
-<div class="sect-item"><span>Config snapshot</span> — 출고 시점 전체 FF 상태 아카이브 (감사 추적용)</div>
-<div class="sect-item"><span>Variant↔Flag mapping</span> — can_exist(variant) → should_expose_now(flag) 매핑 기록</div>
-</div>
-</div>
-<div class="note"><b>핵심:</b> Factory에서는 SOTA binary를 ECU에 flash하면서 FF NVRAM defaults도 함께 기록. 이 시점의 FF 상태가 Fail-safe L4(hardcoded)의 기준이 됨. 출고 후 COTA로 flag 값만 변경 가능 — binary는 SOTA로만 변경.</div>
+<!-- ============================================================ -->
+<!-- PHASE 0: Pre-SOP -->
+<!-- ============================================================ -->
+<div class="lc-pnl lc-on" id="lcP0">
+<div class="lc-phase-desc">차량 개발 단계 -- 실차 없음. vECU / SIL / HIL 환경에서 FF를 설계, 구현, 검증. Flag Spec 정의부터 Shadow Flag 검증, Supplier Gate까지 7단계.</div>
+
+<div class="lc-flow">
+<div class="lc-step" onclick="lcStep(0,0)"><div class="lc-step-num">01</div><div class="lc-step-box">Feature Planning</div><div class="lc-step-tools"><span class="lc-chip">Jira</span><span class="lc-chip">Confluence</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(0,1)"><div class="lc-step-num">02</div><div class="lc-step-box">REQ / Flag Spec</div><div class="lc-step-tools"><span class="lc-chip">Codebeamer</span><span class="lc-chip">YAML</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(0,2)"><div class="lc-step-num">03</div><div class="lc-step-box">Architecture</div><div class="lc-step-tools"><span class="lc-chip">EA</span><span class="lc-chip">PREEvision</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(0,3)"><div class="lc-step-num">04</div><div class="lc-step-box">Implementation</div><div class="lc-step-tools"><span class="lc-chip">Bitbucket</span><span class="lc-chip">MATLAB</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(0,4)"><div class="lc-step-num">05</div><div class="lc-step-box">CI / Build</div><div class="lc-step-tools"><span class="lc-chip">Bamboo</span><span class="lc-chip">SonarQube</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(0,5)"><div class="lc-step-num">06</div><div class="lc-step-box">V&amp;V (Virtual)</div><div class="lc-step-tools"><span class="lc-chip">Simulink</span><span class="lc-chip">vECU</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(0,6)"><div class="lc-step-num">07</div><div class="lc-step-box">Supplier Gate</div><div class="lc-step-tools"><span class="lc-chip">PolySpace</span><span class="lc-chip">ES95411</span></div></div>
 </div>
 
-<div class="pnl" id="p2">
-<div class="phase-h">양산 후 필드 운영 — 고객 차량에 OTA로 FF 제어. Progressive delivery, FoD, A/B test, Kill-switch 등 FF의 핵심 가치가 실현되는 단계.</div>
-<div class="flow">
-<div class="step"><div class="step-box hl">Campaign create</div><div class="step-data">VIN targeting · Ring config · Guardrail KPI · Go/No-Go rule</div><div class="step-tool"><span class="c">Admin Console</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">COTA push</div><div class="step-data">SSE/MQTT → Policy update → Vehicle FF Evaluator refresh</div><div class="step-tool"><span class="c">MQTT</span><span class="c">SSE</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Ring 1 canary</div><div class="step-data">내부 50-100대 · Exposure event 수집 · ML anomaly watch</div><div class="step-tool"><span class="c">Guardrail</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Ring 2→3→4</div><div class="step-data">통계적 유의성 → Ring 확장 판정 → 카나리→GA</div><div class="step-tool"><span class="c">A/B Engine</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">FoD activate</div><div class="step-data">Subscription → Payment → Permission flag ON → 기능 활성화</div><div class="step-tool"><span class="c">FoD Store</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box">Monitor</div><div class="step-data">Telemetry · DORA 5 · Flag Hygiene · Cleanup sprint</div><div class="step-tool"><span class="c">CIF</span><span class="c">DORA</span></div><div class="step-arr">→</div></div>
-<div class="step"><div class="step-box" style="border-color:var(--color-text-danger);color:var(--color-text-danger)">Kill-switch</div><div class="step-data">L1 COTA &lt;5min · L2 UCM 20-30min · L3 Dealer</div><div class="step-tool"><span class="c">MQTT</span><span class="c">OBD-II</span></div></div>
-</div>
-<div class="sect">
-<b>Post-SOP FF data objects</b>
-<div class="sect-grid">
-<div class="sect-item"><span>Campaign manifest</span> — target VIN set, Ring config, guardrail thresholds, rollback trigger</div>
-<div class="sect-item"><span>Exposure event</span> — VIN + flag_id + variant + timestamp + outcome → 텔레메트리</div>
-<div class="sect-item"><span>Decision record</span> — Ring Go/No-Go 판정, 통계 유의성, reviewer sign-off</div>
-<div class="sect-item"><span>FoD entitlement</span> — subscription_id + VIN + permission_flag + expiry</div>
-<div class="sect-item"><span>Kill-switch log</span> — trigger reason, level, affected VINs, RCA report</div>
-<div class="sect-item"><span>Cleanup task</span> — stale flag detection, Piranha AST scan, Hygiene score</div>
-</div>
-</div>
-<div class="sect" style="margin-top:4px">
-<b>Post-SOP special scenarios</b>
-<div class="sect-grid">
-<div class="sect-item"><span>SW recall prevention</span> — 장애 탐지 → Kill-switch L1 → blast radius 차단 → RCA → 패치 SOTA → re-enable</div>
-<div class="sect-item"><span>A/B experiment</span> — VIN cohort split → Shadow/Treatment → exposure collect → stat test → winner deploy</div>
-<div class="sect-item"><span>Regional compliance</span> — 규제 변경 → region gate flag update → COTA push → 즉시 적용 (binary 변경 없이)</div>
-</div>
-</div>
-<div class="note"><b>핵심:</b> Post-SOP이 FF의 진짜 가치가 실현되는 단계. Deploy(OTA 패키지 배포) ≠ Release(기능 활성화) 분리가 여기서 동작. COTA로 flag config만 변경하여 binary 없이 기능 제어. Kill-switch는 CrowdStrike급 사태 방지의 마지막 방어선.</div>
+<!-- Pre-SOP Step Details -->
+<div class="lc-detail" id="lcD0_0">
+<div class="lc-detail-header"><span class="lc-detail-title">01. Feature Planning</span><span class="lc-detail-close" onclick="lcClose(0,0)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>상품기획 Feature Requirement를 FF backlog으로 변환</dd><dt>Input</dt><dd>Product Planning 요구사항, 시장/지역/Trim 조건, 경쟁사 벤치마크</dd><dt>Output</dt><dd>Feature ID (canonical), Jira Epic/Story, 우선순위 Rank</dd><dt>Owner</dt><dd>Product Planning + Feature Owner</dd><dt>Tools</dt><dd><span class="lc-chip">Jira</span><span class="lc-chip">Confluence</span><span class="lc-chip">Feature Catalog</span></dd></dl><div class="lc-note"><b>Key:</b> Feature ID는 Jira &rarr; Codebeamer &rarr; Bitbucket &rarr; FF Platform까지 관통하는 단일 식별자. 이 시점에 FF 대상 여부(Toggle-worthy)를 판정.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">상품기획<br>요구 접수</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Toggle-worthy<br>판정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Feature ID<br>발급</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Jira Epic<br>생성</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Priority<br>Ranking</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">FF Backlog<br>등록</div></div><div class="lc-note"><b>Toggle-worthy 판정 기준:</b> (1) 시장/지역별 분기 필요, (2) 점진적 롤아웃 필요, (3) Kill-switch 필요, (4) FoD 후보. 4개 중 1개 이상이면 FF 대상.</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Product Planning 승인 완료, Feature 요구사항 문서 존재</div><div class="lc-gate-item"><b>Exit Gate</b>Feature ID 발급, Jira Epic 생성, FF Backlog 등록 완료</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> 이 단계에서 ASIL 분류 전 -- 다음 단계(REQ/Flag Spec)에서 Safety classification 수행<span class="lc-asil lc-asil-qm">QM</span></div></div>
 </div>
 
+<div class="lc-detail" id="lcD0_1">
+<div class="lc-detail-header"><span class="lc-detail-title">02. REQ / Flag Spec</span><span class="lc-detail-close" onclick="lcClose(0,1)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>SYS/SW REQ에서 Feature-Function 매핑 후 Flag Spec YAML 정의</dd><dt>Input</dt><dd>Feature ID, SYS REQ (Codebeamer), SW REQ, ASIL classification source</dd><dt>Output</dt><dd>Flag Spec YAML (type, owner, TTL, ASIL class, targeting rule, default value)</dd><dt>Owner</dt><dd>System Architect + Safety Engineer</dd><dt>Tools</dt><dd><span class="lc-chip">Codebeamer</span><span class="lc-chip">YAML Schema</span><span class="lc-chip">PREEvision</span></dd></dl><div class="lc-note"><b>Key:</b> Flag Spec YAML은 FF의 Single Source of Truth. type(release/ops/experiment/permission), ASIL class, dual-channel 필요 여부, TTL(자동 만료), targeting rule을 모두 포함.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">SYS REQ<br>분석</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Feature-Function<br>매핑</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Safety<br>Classification</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Flag Spec<br>YAML 작성</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Schema<br>Validation</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Peer Review<br>&amp; Approve</div></div><div class="lc-note"><b>Flag Spec YAML 필수 필드:</b> flag_id, type, owner_team, asil_class, default_value, ttl, targeting_rules, dual_channel, fail_safe_level</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Feature ID 존재, SYS/SW REQ Codebeamer에 등록 완료</div><div class="lc-gate-item"><b>Exit Gate</b>Flag Spec YAML schema validation pass, Safety peer-review 완료</div></div><div style="margin-top:6px"><b style="font-size:9px">ASIL Classification:</b><div class="lc-grid3" style="margin-top:4px"><div class="lc-card"><b>Safety-critical</b>ASIL B/D -- 브레이크, 스티어링 관련 flag<span class="lc-asil lc-asil-b">ASIL-B</span><span class="lc-asil lc-asil-d">ASIL-D</span></div><div class="lc-card"><b>Safety-relevant</b>ASIL A/B -- ADAS 보조 기능, 조명<span class="lc-asil lc-asil-b">ASIL-B</span></div><div class="lc-card"><b>Non-safety</b>QM -- 인포테인먼트, UI 테마<span class="lc-asil lc-asil-qm">QM</span></div></div></div></div>
 </div>
-<script>function sw(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));document.querySelectorAll('.pnl').forEach((p,j)=>p.classList.toggle('on',j===i))}</script>
+
+<div class="lc-detail" id="lcD0_2">
+<div class="lc-detail-header"><span class="lc-detail-title">03. Architecture</span><span class="lc-detail-close" onclick="lcClose(0,2)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>Toggle Point 배치, Fail-safe 설계, ASIL별 Dual-channel 아키텍처 결정</dd><dt>Input</dt><dd>Flag Spec YAML, E/E Architecture (PREEvision), HW topology</dd><dt>Output</dt><dd>Toggle Point 설계서, Fail-safe 매트릭스, Dual-channel 할당표</dd><dt>Owner</dt><dd>SW Architect + Safety Architect</dd><dt>Tools</dt><dd><span class="lc-chip">EA</span><span class="lc-chip">PREEvision</span><span class="lc-chip">Rhapsody</span></dd></dl><div class="lc-note"><b>Key:</b> Toggle Point = eval point(flag 값 읽기) + apply point(기능 분기). ASIL-D flag는 반드시 Dual-channel(독립 ECU 이중 평가). Fail-safe 4-Level: L1(COTA revert), L2(UCM rollback), L3(NVRAM fallback), L4(hardcoded default).</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Toggle Point<br>위치 결정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Eval/Apply<br>Point 분리</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Fail-safe<br>Level 할당</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Dual-channel<br>설계</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">NVRAM<br>Layout 설계</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Architecture<br>Review</div></div><div class="lc-note"><b>Fail-safe 4-Level:</b> L1 COTA revert(&lt;5min) &rarr; L2 UCM rollback(20-30min) &rarr; L3 NVRAM fallback(즉시, 시동 시) &rarr; L4 hardcoded default(컴파일 타임)</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Flag Spec YAML approved, E/E Arch baseline 확정</div><div class="lc-gate-item"><b>Exit Gate</b>Architecture Review 통과, Fail-safe 매트릭스 서명</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>ASIL-D 필수</b>Dual-channel 독립 ECU, Voter 로직, CRC32 무결성 검증<span class="lc-asil lc-asil-d">ASIL-D</span></div><div class="lc-gate-item"><b>ASIL-B</b>Single channel + NVRAM fallback + watchdog<span class="lc-asil lc-asil-b">ASIL-B</span></div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD0_3">
+<div class="lc-detail-header"><span class="lc-detail-title">04. Implementation</span><span class="lc-detail-close" onclick="lcClose(0,3)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>FF SDK 통합, Latch-at-Init 패턴 적용, 코딩 규약 준수 구현</dd><dt>Input</dt><dd>Toggle Point 설계서, Flag Spec YAML, FF SDK API</dd><dt>Output</dt><dd>Feature branch 코드, Unit test, Static analysis pass</dd><dt>Owner</dt><dd>SW Developer (OEM / Supplier)</dd><dt>Tools</dt><dd><span class="lc-chip">Bitbucket</span><span class="lc-chip">MATLAB/Simulink</span><span class="lc-chip">FF SDK</span></dd></dl><div class="lc-note"><b>Key:</b> Latch-at-Init -- flag 값은 ECU 시동 시 1회 평가 후 고정(런타임 중 변경 금지). Hot-path에 eval 로직 금지. FF SDK가 캐시 + fallback을 자동 처리.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">FF SDK<br>Import</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Toggle Point<br>코딩</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Latch-at-Init<br>패턴 적용</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Unit Test<br>(ON/OFF)</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Static Analysis<br>MISRA-C</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Code Review<br>&amp; Merge</div></div><div class="lc-note"><b>코딩 패턴 규칙:</b> (1) if/else 분기 금지 -- Strategy pattern 사용, (2) flag 값 직접 비교 금지 -- SDK API만 사용, (3) nested flag 금지 -- 플래그 간 의존성 제거</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Architecture Review pass, Toggle Point 설계서 승인</div><div class="lc-gate-item"><b>Exit Gate</b>Unit test ON/OFF 100% pass, MISRA-C zero violation, Code review approved</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL Impl 규칙:</b> ASIL-D flag는 MISRA-C:2012 Mandatory + Required 전체 준수. QM flag는 Advisory 제외 가능.<span class="lc-asil lc-asil-d">ASIL-D</span><span class="lc-asil lc-asil-qm">QM</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD0_4">
+<div class="lc-detail-header"><span class="lc-detail-title">05. CI / Build</span><span class="lc-detail-close" onclick="lcClose(0,4)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>6-Stage CI pipeline으로 FF 코드 빌드, 검증, 패키지 생성</dd><dt>Input</dt><dd>Feature branch code, Flag Spec YAML, Build configuration</dd><dt>Output</dt><dd>COTA config package, SOTA binary, Coverage report, SonarQube report</dd><dt>Owner</dt><dd>DevOps / CI Engineer</dd><dt>Tools</dt><dd><span class="lc-chip">Bamboo</span><span class="lc-chip">SonarQube</span><span class="lc-chip">Artifactory</span></dd></dl><div class="lc-note"><b>Key:</b> 6-Stage = (1)Checkout (2)MISRA-C scan (3)Build ON+OFF (4)Unit test (5)Coverage gate (6)Package(COTA config + SOTA binary). ON/OFF 양쪽 빌드가 모두 성공해야 통과.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Checkout<br>&amp; Lint</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">MISRA-C<br>Scan</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Build ON<br>+ Build OFF</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Unit Test<br>(ON/OFF)</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Coverage<br>Gate &ge;80%</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">COTA/SOTA<br>Package</div></div><div class="lc-note"><b>Coverage gate:</b> Line coverage &ge;80%, Branch coverage &ge;70%. Flag ON/OFF 각각 별도 측정. COTA package = flag config JSON, SOTA package = ECU binary.</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Code review approved, Feature branch green</div><div class="lc-gate-item"><b>Exit Gate</b>6-stage all pass, Coverage &ge;80%, MISRA-C zero critical, Package signed</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>ASIL Build 규칙</b>ASIL-D: ON/OFF 모두 MC/DC coverage 필수<span class="lc-asil lc-asil-d">ASIL-D</span></div><div class="lc-gate-item"><b>QM Build 규칙</b>Statement coverage &ge;80% 충분<span class="lc-asil lc-asil-qm">QM</span></div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD0_5">
+<div class="lc-detail-header"><span class="lc-detail-title">06. V&amp;V (Virtual)</span><span class="lc-detail-close" onclick="lcClose(0,5)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>vECU/SIL/HIL에서 FF 동작 검증 -- ON/OFF coverage, NVRAM fallback, Shadow Flag</dd><dt>Input</dt><dd>COTA/SOTA package, vECU Level 1-3 환경, Test case suite</dd><dt>Output</dt><dd>V&amp;V report, Shadow Flag 비교 데이터, NVRAM fallback 검증 결과</dd><dt>Owner</dt><dd>Validation Engineer + Safety Engineer</dd><dt>Tools</dt><dd><span class="lc-chip">Simulink</span><span class="lc-chip">vECU</span><span class="lc-chip">dSPACE</span><span class="lc-chip">VectorCAST</span></dd></dl><div class="lc-note"><b>Key:</b> vECU Level 3(BSW NVM 포함)에서 NVRAM fallback(Fail-safe L3) 검증 필수. Shadow Flag = 신규 로직 병행 실행 + 기존 로직과 비교하여 regression 사전 탐지.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">vECU L1<br>기능 테스트</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">vECU L2<br>통합 테스트</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">vECU L3<br>NVM 검증</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Shadow Flag<br>병행 실행</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">조합 테스트<br>Flag Matrix</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">V&amp;V Report<br>서명</div></div><div class="lc-note"><b>Shadow Flag 프로세스:</b> 기존 로직(control) + 신규 로직(treatment) 동시 실행 &rarr; output 비교 &rarr; delta가 threshold 이내면 pass &rarr; 안전하게 신규 로직 전환 가능</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>CI 6-stage all pass, Package signed</div><div class="lc-gate-item"><b>Exit Gate</b>ON/OFF coverage 100%, NVRAM fallback pass, Shadow Flag delta &le; threshold</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>ASIL-D V&amp;V</b>HIL 필수, Fault injection, 조합 테스트 full coverage<span class="lc-asil lc-asil-d">ASIL-D</span></div><div class="lc-gate-item"><b>QM V&amp;V</b>SIL 충분, 주요 시나리오 커버<span class="lc-asil lc-asil-qm">QM</span></div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD0_6">
+<div class="lc-detail-header"><span class="lc-detail-title">07. Supplier Gate</span><span class="lc-detail-close" onclick="lcClose(0,6)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>Supplier 납품물 ES95411 기준 검증, SDK conformance 확인</dd><dt>Input</dt><dd>Supplier delivery package (11종), SDK conformance checklist</dd><dt>Output</dt><dd>ES95411 검증서, Supplier 승인/반려 판정</dd><dt>Owner</dt><dd>OEM Quality Gate Reviewer</dd><dt>Tools</dt><dd><span class="lc-chip">PolySpace</span><span class="lc-chip">ES95411</span><span class="lc-chip">Conformance Tool</span></dd></dl><div class="lc-note"><b>Key:</b> Supplier가 FF SDK를 올바르게 통합했는지 OEM이 검증하는 관문. 납품물 11종: 소스코드, Flag Spec, V&amp;V report, MISRA report, Coverage report, NVRAM layout 등.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">납품물 11종<br>접수</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">ES95411<br>체크리스트</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">SDK Conformance<br>자동 검증</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">PolySpace<br>정적 분석</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Gate Review<br>회의</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">승인/반려<br>판정</div></div><div class="lc-note"><b>납품물 11종:</b> (1)소스코드 (2)Flag Spec YAML (3)Toggle Point 목록 (4)Unit test (5)V&amp;V report (6)MISRA report (7)Coverage report (8)NVRAM layout (9)Fail-safe 매트릭스 (10)SDK 버전 (11)Release note</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>V&amp;V 완료, 납품물 11종 제출 완료</div><div class="lc-gate-item"><b>Exit Gate</b>ES95411 전 항목 pass, SDK conformance pass, OEM reviewer 서명</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL Gate:</b> ASIL-D 납품물은 ISO 26262 Part 6 전체 준수 필수. 독립 검증(3rd party) 권장.<span class="lc-asil lc-asil-d">ASIL-D</span></div></div>
+</div>
+</div><!-- end Pre-SOP -->
+
+<!-- ============================================================ -->
+<!-- PHASE 1: SOP -->
+<!-- ============================================================ -->
+<div class="lc-pnl" id="lcP1">
+<div class="lc-phase-desc">양산 라인에서 차량 생산 -- VIN별 초기 FF config 주입. Variant Coding baseline 위에 FF 초기 상태를 Factory flash로 기록. 6단계.</div>
+
+<div class="lc-flow">
+<div class="lc-step" onclick="lcStep(1,0)"><div class="lc-step-num">01</div><div class="lc-step-box">Order / BOM</div><div class="lc-step-tools"><span class="lc-chip">ERP</span><span class="lc-chip">MES</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(1,1)"><div class="lc-step-num">02</div><div class="lc-step-box">Variant Coding</div><div class="lc-step-tools"><span class="lc-chip">VCDM</span><span class="lc-chip">VCDM-P</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(1,2)"><div class="lc-step-num">03</div><div class="lc-step-box">FF Initial Config</div><div class="lc-step-tools"><span class="lc-chip">FF Platform</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(1,3)"><div class="lc-step-num">04</div><div class="lc-step-box">Factory Flash</div><div class="lc-step-tools"><span class="lc-chip">EOL Tester</span><span class="lc-chip">SOTA</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(1,4)"><div class="lc-step-num">05</div><div class="lc-step-box">EOL Test</div><div class="lc-step-tools"><span class="lc-chip">EOL Tester</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(1,5)"><div class="lc-step-num">06</div><div class="lc-step-box">Ship</div><div class="lc-step-tools"><span class="lc-chip">MES</span><span class="lc-chip">Archive</span></div></div>
+</div>
+
+<!-- SOP Step Details -->
+<div class="lc-detail" id="lcD1_0">
+<div class="lc-detail-header"><span class="lc-detail-title">01. Order / BOM</span><span class="lc-detail-close" onclick="lcClose(1,0)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>VIN 생성, Trim/옵션 확정, 시장/지역 결정 -- FF config의 input 확정</dd><dt>Input</dt><dd>Dealer 주문, 옵션 코드, 시장/지역 정보</dd><dt>Output</dt><dd>VIN, BOM (Bill of Material), Trim/Option/Region 확정</dd><dt>Owner</dt><dd>Production Planning</dd><dt>Tools</dt><dd><span class="lc-chip">ERP</span><span class="lc-chip">MES</span><span class="lc-chip">SAP</span></dd></dl><div class="lc-note"><b>Key:</b> VIN + Trim + Region 조합이 FF config의 targeting input. can_exist(variant) 판정의 기초 데이터.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Dealer 주문<br>접수</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">VIN 생성<br>(17자리)</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Trim/Option<br>확정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">시장/지역<br>결정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">BOM<br>확정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">생산 라인<br>투입 예약</div></div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>주문 확정, 옵션 코드 유효성 검증</div><div class="lc-gate-item"><b>Exit Gate</b>VIN 발급, BOM 확정, 생산 스케줄 등록</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> 이 단계는 생산 관리 -- ASIL 해당 없음. 단, VIN-Trim 매핑 정확성이 FF safety flag의 can_exist 판정에 영향.<span class="lc-asil lc-asil-qm">N/A</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD1_1">
+<div class="lc-detail-header"><span class="lc-detail-title">02. Variant Coding</span><span class="lc-detail-close" onclick="lcClose(1,1)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>VCDM-P에서 VIN별 HW/SW variant baseline 생성 -- FF의 can_exist 기반</dd><dt>Input</dt><dd>VIN, BOM, E/E Architecture variant table</dd><dt>Output</dt><dd>Variant Coding dataset per VIN, HW/SW baseline</dd><dt>Owner</dt><dd>E/E Integration + VCDM Admin</dd><dt>Tools</dt><dd><span class="lc-chip">VCDM</span><span class="lc-chip">VCDM-P</span></dd></dl><div class="lc-note"><b>Key:</b> Variant Coding = HW/SW 조합별 ECU 설정. FF는 이 baseline 위에 추가 layer로 동작. can_exist(variant) = 해당 VIN의 HW가 기능을 지원하는지 판정.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">VIN-BOM<br>매핑</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">HW Variant<br>결정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">SW Variant<br>결정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">VCDM-P<br>Dataset 생성</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">can_exist<br>Matrix 생성</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Variant<br>Validation</div></div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>VIN + BOM 확정, E/E Arch variant table 최신</div><div class="lc-gate-item"><b>Exit Gate</b>VCDM-P dataset validation pass, can_exist matrix 검증</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> Variant Coding 오류는 safety-critical flag의 오동작을 유발할 수 있음. ASIL-D flag가 탑재된 ECU의 variant coding은 이중 검증 필수.<span class="lc-asil lc-asil-d">ASIL-D</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD1_2">
+<div class="lc-detail-header"><span class="lc-detail-title">03. FF Initial Config</span><span class="lc-detail-close" onclick="lcClose(1,2)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>VIN별 FF 초기 config 생성 -- Flag default values + Region gate + Trim-specific flags</dd><dt>Input</dt><dd>Variant Coding baseline, Flag Spec YAML, Region/Trim rules</dd><dt>Output</dt><dd>VIN-level FF config JSON, NVRAM default values</dd><dt>Owner</dt><dd>FF Platform Admin</dd><dt>Tools</dt><dd><span class="lc-chip">FF Platform</span><span class="lc-chip">Policy Engine</span></dd></dl><div class="lc-note"><b>Key:</b> should_expose_now(flag) = can_exist(variant) AND region_gate(market) AND trim_gate(option). 3중 조건을 모두 만족해야 flag가 활성화 가능 상태.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Variant baseline<br>로드</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">can_exist<br>필터링</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Region gate<br>적용</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Trim gate<br>적용</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Default value<br>할당</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Config JSON<br>생성</div></div><div class="lc-note"><b>Config 구조:</b> {vin, flags: [{flag_id, value, source(default/region/trim), asil_class, fail_safe_level}], generated_at, schema_version}</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>VCDM-P baseline 확정, Flag Spec YAML 최신 버전</div><div class="lc-gate-item"><b>Exit Gate</b>Config JSON schema validation pass, Safety flag 이중 검증</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>Safety flag 규칙</b>ASIL-B+ flag는 default OFF (safe state). 활성화는 Post-SOP에서만.<span class="lc-asil lc-asil-b">ASIL-B+</span></div><div class="lc-gate-item"><b>Compliance flag</b>Region gate로 자동 적용 (EU DRL, FMVSS 등)<span class="lc-asil lc-asil-qm">Regulatory</span></div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD1_3">
+<div class="lc-detail-header"><span class="lc-detail-title">04. Factory Flash</span><span class="lc-detail-close" onclick="lcClose(1,3)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>SOTA binary + FF NVRAM defaults를 ECU에 flash -- 출고 시점 기준 상태 기록</dd><dt>Input</dt><dd>SOTA binary, FF Config JSON, NVRAM default values</dd><dt>Output</dt><dd>ECU flash 완료, NVRAM 초기화 완료</dd><dt>Owner</dt><dd>Production Line (EOL Tester)</dd><dt>Tools</dt><dd><span class="lc-chip">EOL Tester</span><span class="lc-chip">Flash Tool</span></dd></dl><div class="lc-note"><b>Key:</b> NVRAM에 기록된 FF default가 Fail-safe L3의 기준. Factory flash 시점이 Fail-safe L4(hardcoded) 다음의 마지막 안전망. binary는 SOTA로만, config는 COTA로만 변경 가능.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">SOTA Binary<br>로드</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">ECU Flash<br>실행</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">NVRAM<br>초기화</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">FF Config<br>NVRAM 기록</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">CRC32<br>무결성 확인</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Flash<br>완료 확인</div></div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>FF Config JSON 생성 완료, SOTA binary 서명 검증</div><div class="lc-gate-item"><b>Exit Gate</b>ECU flash 성공, NVRAM CRC32 pass, Flash log 기록</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> Factory flash 실패 시 해당 ECU 라인 정지. ASIL-D ECU는 flash 후 Dual-channel 무결성 검증 추가 수행.<span class="lc-asil lc-asil-d">ASIL-D</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD1_4">
+<div class="lc-detail-header"><span class="lc-detail-title">05. EOL Test</span><span class="lc-detail-close" onclick="lcClose(1,4)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>FF 초기 상태 정상 검증 -- DTC check, Fail-safe 동작 확인</dd><dt>Input</dt><dd>Flash 완료된 ECU, 예상 FF config</dd><dt>Output</dt><dd>EOL validation report, DTC clear 확인</dd><dt>Owner</dt><dd>Quality Assurance (EOL Station)</dd><dt>Tools</dt><dd><span class="lc-chip">EOL Tester</span><span class="lc-chip">OBD-II</span></dd></dl><div class="lc-note"><b>Key:</b> EOL에서 FF 초기 상태가 Config JSON과 일치하는지 검증. DTC(Diagnostic Trouble Code) 없음 확인. Fail-safe L4(hardcoded) 동작 확인.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">FF State<br>Read-back</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Config JSON<br>비교 검증</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">DTC<br>Scan</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Fail-safe L4<br>동작 확인</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">DTC<br>Clear</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">EOL Report<br>생성</div></div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Factory flash 성공, CRC32 pass</div><div class="lc-gate-item"><b>Exit Gate</b>FF state = Config JSON, DTC zero, Fail-safe L4 정상</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> ASIL-D ECU의 EOL 검증은 Dual-channel 양쪽 모두 독립 검증. 불일치 시 라인 정지 + escalation.<span class="lc-asil lc-asil-d">ASIL-D</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD1_5">
+<div class="lc-detail-header"><span class="lc-detail-title">06. Ship</span><span class="lc-detail-close" onclick="lcClose(1,5)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>출고 시점 VIN + FF config snapshot 아카이브 -- 감사 추적 기준점</dd><dt>Input</dt><dd>EOL validation pass, 전체 FF state</dd><dt>Output</dt><dd>Config snapshot (immutable archive), 출고 기록</dd><dt>Owner</dt><dd>Production + Quality</dd><dt>Tools</dt><dd><span class="lc-chip">MES</span><span class="lc-chip">Archive DB</span></dd></dl><div class="lc-note"><b>Key:</b> 출고 시점 snapshot은 불변(immutable). 향후 COTA로 변경된 flag와 비교하여 delta 추적 가능. 리콜/감사 시 기준 데이터.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">EOL Pass<br>확인</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Config<br>Snapshot 생성</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Immutable<br>Archive 저장</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">출고 기록<br>MES 등록</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Dealer<br>인도</div></div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>EOL validation 100% pass</div><div class="lc-gate-item"><b>Exit Gate</b>Snapshot archived, MES 출고 등록 완료</div></div><div class="lc-note" style="margin-top:6px"><b>Audit:</b> Config snapshot은 최소 15년 보관 (자동차 제조물 책임 기간). RXSWIN 관련 flag는 UN R156 규정에 따라 별도 관리.<span class="lc-asil lc-asil-qm">Regulatory</span></div></div>
+</div>
+</div><!-- end SOP -->
+
+<!-- ============================================================ -->
+<!-- PHASE 2: Post-SOP -->
+<!-- ============================================================ -->
+<div class="lc-pnl" id="lcP2">
+<div class="lc-phase-desc">양산 후 필드 운영 -- 고객 차량에 OTA로 FF 제어. Progressive delivery, FoD, A/B test, Kill-switch 등 FF의 핵심 가치가 실현되는 단계. 7단계.</div>
+
+<div class="lc-flow">
+<div class="lc-step" onclick="lcStep(2,0)"><div class="lc-step-num">01</div><div class="lc-step-box">Campaign Create</div><div class="lc-step-tools"><span class="lc-chip">Admin Console</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(2,1)"><div class="lc-step-num">02</div><div class="lc-step-box">COTA Push</div><div class="lc-step-tools"><span class="lc-chip">MQTT</span><span class="lc-chip">SSE</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(2,2)"><div class="lc-step-num">03</div><div class="lc-step-box">Canary (Ring 1)</div><div class="lc-step-tools"><span class="lc-chip">Guardrail</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(2,3)"><div class="lc-step-num">04</div><div class="lc-step-box">Rollout (Ring 2-4)</div><div class="lc-step-tools"><span class="lc-chip">A/B Engine</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(2,4)"><div class="lc-step-num">05</div><div class="lc-step-box">FoD Activate</div><div class="lc-step-tools"><span class="lc-chip">FoD Store</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(2,5)"><div class="lc-step-num">06</div><div class="lc-step-box">Monitor</div><div class="lc-step-tools"><span class="lc-chip">CIF</span><span class="lc-chip">DORA</span></div><div class="lc-step-arr">&rarr;</div></div>
+<div class="lc-step" onclick="lcStep(2,6)"><div class="lc-step-num">07</div><div class="lc-step-box" style="border-color:var(--color-text-danger);color:var(--color-text-danger)">Kill-switch</div><div class="lc-step-tools"><span class="lc-chip">MQTT</span><span class="lc-chip">UCM</span></div></div>
+</div>
+
+<!-- Post-SOP Step Details -->
+<div class="lc-detail" id="lcD2_0">
+<div class="lc-detail-header"><span class="lc-detail-title">01. Campaign Create</span><span class="lc-detail-close" onclick="lcClose(2,0)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>VIN targeting, Ring config, Guardrail KPI, Go/No-Go rule을 포함한 Campaign manifest 생성</dd><dt>Input</dt><dd>Flag ID, Target VIN set, Ring strategy, Guardrail thresholds</dd><dt>Output</dt><dd>Campaign manifest, 4-eyes approval record</dd><dt>Owner</dt><dd>Feature Owner + Release Manager</dd><dt>Tools</dt><dd><span class="lc-chip">Admin Console</span><span class="lc-chip">Policy Engine</span><span class="lc-chip">RBAC</span></dd></dl><div class="lc-note"><b>Key:</b> Deploy(OTA 배포) &#x2260; Release(기능 활성화) 분리의 시작점. Campaign = 언제, 누구에게, 어떤 flag를, 어떤 조건으로 변경할지 정의. 4-eyes approval 필수.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Flag 선택<br>&amp; Value 설정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">VIN Targeting<br>Rule 설정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Ring Strategy<br>설정 (1-4)</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Guardrail KPI<br>Threshold</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">4-Eyes<br>Approval</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Campaign<br>Publish</div></div><div class="lc-note"><b>Ring Strategy:</b> Ring 1(내부 50-100대) &rarr; Ring 2(얼리어답터 1-5%) &rarr; Ring 3(일반 10-50%) &rarr; Ring 4(GA 100%). 각 Ring 간 자동 Go/No-Go 판정.</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Flag ID valid, RBAC 권한 확인, RXSWIN gate pass (해당 시)</div><div class="lc-gate-item"><b>Exit Gate</b>4-eyes approval 완료, Campaign manifest signed, Audit log 기록</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>ASIL-D Campaign</b>Safety flag 변경 시 Safety Manager 추가 승인(6-eyes). Ring 1 필수.<span class="lc-asil lc-asil-d">ASIL-D</span></div><div class="lc-gate-item"><b>RXSWIN gate</b>UN R156 해당 flag는 Type Approval Authority 사전 승인 필요<span class="lc-asil lc-asil-qm">Regulatory</span></div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD2_1">
+<div class="lc-detail-header"><span class="lc-detail-title">02. COTA Push</span><span class="lc-detail-close" onclick="lcClose(2,1)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>Cloud에서 Vehicle로 FF config 변경 전파 -- binary 변경 없이 flag 값만 OTA push</dd><dt>Input</dt><dd>Campaign manifest, Target VIN list</dd><dt>Output</dt><dd>Vehicle FF Evaluator refresh, Policy sync 확인</dd><dt>Owner</dt><dd>FF Platform (automated)</dd><dt>Tools</dt><dd><span class="lc-chip">MQTT</span><span class="lc-chip">SSE</span><span class="lc-chip">Policy Sync</span></dd></dl><div class="lc-note"><b>Key:</b> COTA = Config OTA. binary(SOTA) 없이 flag config만 전송. SSE(Server-Sent Events) 또는 MQTT로 push. Vehicle FF Evaluator가 수신 후 local cache 갱신.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Campaign<br>Trigger</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">VIN Filter<br>적용</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">MQTT/SSE<br>Push</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Vehicle<br>수신 확인</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">FF Evaluator<br>Refresh</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Ack &rarr;<br>Cloud 기록</div></div><div class="lc-note"><b>Offline 처리:</b> 차량 offline 시 MQTT retained message로 대기. 차량 재접속 시 자동 sync. 최대 7일 보관 후 만료.</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>Campaign approved, VIN targeting valid</div><div class="lc-gate-item"><b>Exit Gate</b>Target VIN Ack 수신, Policy sync 확인, Delivery rate 모니터링</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> COTA push 자체는 QM이나, safety flag의 COTA는 Latch-at-Init에 의해 다음 시동 시 적용. 운행 중 즉시 적용 금지(ASIL-D).<span class="lc-asil lc-asil-d">ASIL-D</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD2_2">
+<div class="lc-detail-header"><span class="lc-detail-title">03. Canary (Ring 1)</span><span class="lc-detail-close" onclick="lcClose(2,2)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>내부 50-100대 카나리 배포 후 Guardrail KPI 모니터링, 이상 탐지</dd><dt>Input</dt><dd>Ring 1 VIN set, Guardrail KPI thresholds, Exposure event stream</dd><dt>Output</dt><dd>Canary report, ML anomaly score, Go/No-Go 판정</dd><dt>Owner</dt><dd>Release Manager + Guardrail System</dd><dt>Tools</dt><dd><span class="lc-chip">Guardrail</span><span class="lc-chip">ML Anomaly</span><span class="lc-chip">Telemetry</span></dd></dl><div class="lc-note"><b>Key:</b> Ring 1 = 내부 테스트 차량(직원, 시험차). Guardrail이 DTC 증가율, 배터리 이상, CAN error rate 등을 ML 기반 2-sigma 이상 탐지. 자동 rollback trigger 설정.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Ring 1<br>VIN 배포</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Exposure<br>Event 수집</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Guardrail<br>KPI 모니터</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">ML Anomaly<br>2-sigma 검증</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Bake Time<br>대기 (24-72h)</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Go / No-Go<br>판정</div></div><div class="lc-note"><b>Guardrail KPI 예시:</b> DTC 발생률, Battery SOC 이상, CAN bus error rate, ECU restart count, 고객 불만 접수 건수</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>COTA push 완료, Ring 1 VIN Ack 100%</div><div class="lc-gate-item"><b>Exit Gate</b>Bake time 경과, Guardrail KPI all green, ML anomaly score &lt; threshold</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>Auto-rollback</b>Guardrail KPI 1개라도 red &rarr; 자동 COTA revert (Kill-switch L1)</div><div class="lc-gate-item"><b>ASIL-D Canary</b>Safety flag는 Ring 1 bake time 최소 72h. 일반 flag는 24h.<span class="lc-asil lc-asil-d">ASIL-D</span></div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD2_3">
+<div class="lc-detail-header"><span class="lc-detail-title">04. Rollout (Ring 2-4)</span><span class="lc-detail-close" onclick="lcClose(2,3)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>통계적 유의성 기반 Ring 확장 -- Canary &rarr; Early Adopter &rarr; General &rarr; GA</dd><dt>Input</dt><dd>Ring 1 Go 판정, A/B experiment data, Statistical significance</dd><dt>Output</dt><dd>Ring expansion records, A/B test winner 선정, GA 배포 완료</dd><dt>Owner</dt><dd>Release Manager + Data Scientist</dd><dt>Tools</dt><dd><span class="lc-chip">A/B Engine</span><span class="lc-chip">Stats Engine</span></dd></dl><div class="lc-note"><b>Key:</b> Ring 2(1-5% 얼리어답터) &rarr; Ring 3(10-50% 일반) &rarr; Ring 4(100% GA). 각 단계에서 통계적 유의성(p-value &lt; 0.05) 확인 후 확장. A/B test는 treatment vs control 비교.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Ring 2<br>1-5% 배포</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">A/B<br>Treatment 수집</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Statistical<br>Significance</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Ring 3<br>10-50% 확장</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Final<br>Go/No-Go</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Ring 4<br>GA 100%</div></div><div class="lc-note"><b>A/B Test 통계:</b> Sample size 계산(MDE, power) &rarr; VIN cohort random split &rarr; Exposure event 수집 &rarr; Chi-square / t-test &rarr; Winner deploy</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Ring 2 Entry</b>Ring 1 Go + bake time pass</div><div class="lc-gate-item"><b>Ring 3 Entry</b>Ring 2 statistical significance confirmed</div><div class="lc-gate-item"><b>Ring 4 (GA) Entry</b>Ring 3 Guardrail all green, Final review sign-off</div><div class="lc-gate-item"><b>Rollback</b>어느 Ring에서든 Guardrail red &rarr; 전체 COTA revert</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> Safety flag는 Ring 4(GA) 전 Safety Committee 최종 승인 필수. 각 Ring에서 safety KPI(DTC, crash) 별도 모니터링.<span class="lc-asil lc-asil-d">ASIL-D</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD2_4">
+<div class="lc-detail-header"><span class="lc-detail-title">05. FoD Activate</span><span class="lc-detail-close" onclick="lcClose(2,4)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>Feature-on-Demand: 구독/결제 후 Permission flag ON으로 유료 기능 활성화</dd><dt>Input</dt><dd>Subscription event, Payment confirmation, VIN + Feature ID</dd><dt>Output</dt><dd>FoD entitlement record, Permission flag ON, 기능 활성화</dd><dt>Owner</dt><dd>FoD Platform + Billing</dd><dt>Tools</dt><dd><span class="lc-chip">FoD Store</span><span class="lc-chip">Billing</span><span class="lc-chip">FF Platform</span></dd></dl><div class="lc-note"><b>Key:</b> FoD = FF의 비즈니스 모델. Permission flag(type=permission)가 구독 상태에 따라 ON/OFF. 구독 만료 시 자동 OFF(TTL). 차량 기능은 이미 binary에 포함되어 있고, flag만 제어.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">고객<br>구독 요청</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">결제<br>Processing</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Entitlement<br>생성</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Permission Flag<br>ON (COTA)</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Vehicle<br>기능 활성화</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">구독 관리<br>(갱신/해지)</div></div><div class="lc-note"><b>FoD 예시:</b> 원격 주차(Remote Parking), 차선 변경 보조(HDA 2), 시트 히팅 구독, 성능 부스트 모드. 각각 독립 permission flag.</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Entry Gate</b>can_exist(HW 지원) 확인, 결제 완료</div><div class="lc-gate-item"><b>Exit Gate</b>Entitlement active, Permission flag synced, 기능 활성화 확인</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>Safety FoD</b>ADAS FoD는 ASIL-B+ -- 활성화 시 추가 safety check 필수<span class="lc-asil lc-asil-b">ASIL-B</span></div><div class="lc-gate-item"><b>TTL 관리</b>구독 만료 시 TTL에 의해 자동 OFF. Grace period 7일.</div></div></div>
+</div>
+
+<div class="lc-detail" id="lcD2_5">
+<div class="lc-detail-header"><span class="lc-detail-title">06. Monitor</span><span class="lc-detail-close" onclick="lcClose(2,5)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>Telemetry 수집, DORA 5 메트릭 추적, Flag Hygiene 관리, Cleanup sprint</dd><dt>Input</dt><dd>Exposure events, Telemetry stream, Flag inventory</dd><dt>Output</dt><dd>DORA 5 dashboard, Hygiene score, Cleanup task backlog</dd><dt>Owner</dt><dd>SRE + Feature Owner</dd><dt>Tools</dt><dd><span class="lc-chip">CIF</span><span class="lc-chip">DORA Dashboard</span><span class="lc-chip">Piranha</span></dd></dl><div class="lc-note"><b>Key:</b> DORA 5 = 기존 DORA 4 + Flag Hygiene(5번째 메트릭). Stale flag(90일+ 미변경)을 자동 탐지하여 Cleanup sprint 대상으로 지정. Piranha AST scan으로 dead toggle code 자동 제거.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">Telemetry<br>수집</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">DORA 4<br>메트릭 계산</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Flag Hygiene<br>Score 계산</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Stale Flag<br>탐지</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Piranha<br>AST Scan</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Cleanup<br>Sprint 실행</div></div><div class="lc-note"><b>DORA 5 메트릭:</b> (1)Deployment Frequency (2)Lead Time for Changes (3)Change Failure Rate (4)Time to Restore (5)Flag Hygiene Score (stale flag ratio, cleanup velocity)</div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Hygiene 기준</b>Stale flag ratio &lt; 10%, Cleanup velocity &ge; 5 flags/sprint</div><div class="lc-gate-item"><b>Alert 조건</b>Stale flag ratio &gt; 20% &rarr; Feature Owner 자동 알림</div></div><div class="lc-note" style="margin-top:6px"><b>ASIL:</b> Safety flag는 stale 판정 제외 -- 영구 유지 flag. Cleanup 대상은 QM release/experiment flag만.<span class="lc-asil lc-asil-qm">QM only</span></div></div>
+</div>
+
+<div class="lc-detail" id="lcD2_6">
+<div class="lc-detail-header"><span class="lc-detail-title" style="color:var(--color-text-danger)">07. Kill-switch (Emergency)</span><span class="lc-detail-close" onclick="lcClose(2,6)">&times; close</span></div>
+<div class="lc-stabs"><div class="lc-stab lc-on" onclick="lcSub(this,0)">Overview</div><div class="lc-stab" onclick="lcSub(this,1)">Sub-Process</div><div class="lc-stab" onclick="lcSub(this,2)">Gate &amp; ASIL</div></div>
+<div class="lc-spnl lc-on"><dl class="lc-kv"><dt>Goal</dt><dd>긴급 기능 비활성화 -- CrowdStrike급 사태 방지의 마지막 방어선</dd><dt>Input</dt><dd>장애 탐지 alert, Safety incident report, Guardrail auto-trigger</dd><dt>Output</dt><dd>Kill-switch log, RCA report, 복구 계획</dd><dt>Owner</dt><dd>SRE + Safety Manager (ASIL flag)</dd><dt>Tools</dt><dd><span class="lc-chip">MQTT</span><span class="lc-chip">UCM</span><span class="lc-chip">OBD-II</span><span class="lc-chip">Dealer Tool</span></dd></dl><div class="lc-note"><b>Key:</b> 3-Level Kill-switch: L1 COTA revert(&lt;5min, flag config만 롤백), L2 UCM rollback(20-30min, binary 포함 롤백), L3 Dealer visit(물리적 개입). Blast radius 차단이 핵심.</div></div>
+<div class="lc-spnl"><div class="lc-sub-flow"><div class="lc-sub-node">장애 탐지<br>Alert</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Blast Radius<br>분석</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">Kill-switch<br>Level 결정</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">L1: COTA<br>Revert &lt;5min</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">L2: UCM<br>Rollback</div><div class="lc-sub-arr">&rarr;</div><div class="lc-sub-node">RCA &amp;<br>Recovery Plan</div></div><div class="lc-grid3" style="margin-top:6px"><div class="lc-card" style="border-left:3px solid var(--color-text-danger)"><b>L1 - COTA Revert</b>&lt;5min. Flag config만 이전 상태로 롤백. Binary 변경 없음. 가장 빠른 대응.</div><div class="lc-card" style="border-left:3px solid var(--color-text-warning)"><b>L2 - UCM Rollback</b>20-30min. AUTOSAR UCM을 통한 전체 SW 롤백. Binary + config 모두 복원.</div><div class="lc-card" style="border-left:3px solid var(--color-text-secondary)"><b>L3 - Dealer Visit</b>물리적 개입 필요. OBD-II 직접 접속. 통신 불가 차량 대상.</div></div></div>
+<div class="lc-spnl"><div class="lc-gate"><div class="lc-gate-item"><b>Trigger 조건</b>Guardrail auto-trigger, Safety incident, 규제 기관 요청, Customer complaint spike</div><div class="lc-gate-item"><b>Post-action</b>RCA report 48h 이내, 재발 방지 대책, 영향 VIN 전수 확인</div></div><div class="lc-gate" style="margin-top:4px"><div class="lc-gate-item"><b>ASIL-D Kill-switch</b>Safety flag 장애 시 L1 자동 실행(수동 승인 불요). 인명 안전 최우선.<span class="lc-asil lc-asil-d">ASIL-D</span></div><div class="lc-gate-item"><b>SW Recall 방지</b>Kill-switch L1으로 blast radius 즉시 차단 &rarr; 전통적 SW recall(수개월) 회피</div></div></div>
+</div>
+</div><!-- end Post-SOP -->
+
+</div><!-- end lc-w -->
+
+<script>
+(function(){
+  /* Phase switching (Depth 1) */
+  window.lcPhase=function(i){
+    document.querySelectorAll('.lc-tab').forEach(function(t,j){t.classList.toggle('lc-on',j===i)});
+    document.querySelectorAll('.lc-pnl').forEach(function(p,j){p.classList.toggle('lc-on',j===i)});
+    /* highlight E2E bar segments */
+    document.querySelectorAll('.lc-e2e-seg').forEach(function(s){
+      s.classList.toggle('lc-on',parseInt(s.dataset.phase)===i);
+    });
+    /* close any open detail panels in new phase */
+    document.querySelectorAll('.lc-detail').forEach(function(d){d.classList.remove('lc-on')});
+    document.querySelectorAll('.lc-step').forEach(function(s){s.classList.remove('lc-on')});
+  };
+
+  /* E2E bar click -> switch to that phase */
+  window.lcE2eClick=function(phase){
+    lcPhase(phase);
+  };
+
+  /* Step click (Depth 2) */
+  window.lcStep=function(phase,step){
+    var pnl=document.getElementById('lcP'+phase);
+    /* toggle step highlight */
+    pnl.querySelectorAll('.lc-step').forEach(function(s,j){s.classList.toggle('lc-on',j===step)});
+    /* toggle detail panel */
+    pnl.querySelectorAll('.lc-detail').forEach(function(d,j){
+      if(j===step){
+        d.classList.toggle('lc-on');
+        if(d.classList.contains('lc-on')){
+          /* reset sub-tabs to first */
+          d.querySelectorAll('.lc-stab').forEach(function(t,k){t.classList.toggle('lc-on',k===0)});
+          d.querySelectorAll('.lc-spnl').forEach(function(p,k){p.classList.toggle('lc-on',k===0)});
+          d.scrollIntoView({behavior:'smooth',block:'nearest'});
+        }
+      } else {
+        d.classList.remove('lc-on');
+      }
+    });
+  };
+
+  /* Close detail */
+  window.lcClose=function(phase,step){
+    var d=document.getElementById('lcD'+phase+'_'+step);
+    if(d)d.classList.remove('lc-on');
+    var pnl=document.getElementById('lcP'+phase);
+    pnl.querySelectorAll('.lc-step').forEach(function(s){s.classList.remove('lc-on')});
+  };
+
+  /* Sub-tab switching (Depth 3) */
+  window.lcSub=function(el,idx){
+    var detail=el.closest('.lc-detail');
+    detail.querySelectorAll('.lc-stab').forEach(function(t,j){t.classList.toggle('lc-on',j===idx)});
+    detail.querySelectorAll('.lc-spnl').forEach(function(p,j){p.classList.toggle('lc-on',j===idx)});
+  };
+})();
+</script>
