@@ -1,0 +1,125 @@
+/* ===== HMC FF Blueprint — Common Design System ===== */
+
+:root {
+  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Cascadia Code', 'Fira Code', monospace;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #555;
+  --color-text-tertiary: #888;
+  --color-text-info: #4a7dff;
+  --color-text-danger: #d9534f;
+  --color-background-primary: #fff;
+  --color-background-secondary: #f5f6fa;
+  --color-background-info: #f0f4ff;
+  --color-border-primary: #d0d5dd;
+  --color-border-secondary: #b0b8c8;
+  --color-border-tertiary: #e2e6ed;
+  --color-border-info: #4a7dff;
+  --color-info: #4a7dff;
+  --accent: #4a7dff;
+}
+
+/* 4-Plane Color System */
+.pl-c, .pl-ctrl { background: #E6F1FB; color: #0C447C; border-color: #85B7EB; }
+.pl-v, .pl-veh  { background: #E1F5EE; color: #085041; border-color: #5DCAA5; }
+.pl-g, .pl-gov  { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; }
+.pl-q, .pl-qual { background: #FAEEDA; color: #633806; border-color: #FAC775; }
+
+/* Phase Color System */
+.ph1 { background: #E1F5EE; color: #085041; }
+.ph2 { background: #E6F1FB; color: #0C447C; }
+.ph3 { background: #FAEEDA; color: #633806; }
+.ph4 { background: #EEEDFE; color: #3C3489; }
+.ph5 { background: #FCEBEB; color: #791F1F; }
+
+/* RACI Colors */
+.raci-R  { background: #d4edda; color: #155724; }
+.raci-A  { background: #cce5ff; color: #004085; }
+.raci-C  { background: #fff3cd; color: #856404; }
+.raci-I  { background: #e2e3e5; color: #383d41; }
+.raci-RA { background: linear-gradient(135deg, #d4edda 50%, #cce5ff 50%); color: #004085; }
+
+/* Organization Layer Colors */
+.layer-platform   { background: #E6F1FB; color: #0C447C; }
+.layer-feature    { background: #E1F5EE; color: #085041; }
+.layer-governance { background: #EEEDFE; color: #3C3489; }
+.layer-non-eng    { background: #FAEEDA; color: #633806; }
+
+/* Severity Colors */
+.sev-critical { background: #d9534f; color: #fff; }
+.sev-high     { background: #f0ad4e; color: #fff; }
+.sev-medium   { background: #5bc0de; color: #fff; }
+
+/* Common Components */
+.tool-badge {
+  display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 3px; margin: 1px;
+  background: var(--color-background-secondary); color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+}
+.data-badge {
+  display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 3px; margin: 1px;
+  border: 0.5px solid var(--color-border-info); color: var(--color-text-info);
+  background: var(--color-background-info);
+}
+.data-badge.out {
+  border-color: #5DCAA5; color: #085041; background: #E1F5EE;
+}
+
+/* Process Flow (Input → Task → Output) */
+.proc-flow {
+  display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 6px; align-items: start;
+}
+.proc-col {
+  border: 1px solid var(--color-border-tertiary); border-radius: 6px; padding: 6px; min-height: 50px;
+}
+.proc-col-h {
+  font-size: 9px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px;
+  padding-bottom: 3px; border-bottom: 1px solid var(--color-border-tertiary);
+}
+.proc-col-h.inp { color: #004085; }
+.proc-col-h.tsk { color: #155724; }
+.proc-col-h.out { color: #633806; }
+.proc-item { font-size: 9px; padding: 2px 0; line-height: 1.4; color: var(--color-text-secondary); }
+.proc-item::before { content: '• '; color: var(--color-text-tertiary); }
+.proc-arrow {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--color-text-tertiary); padding-top: 18px;
+}
+.proc-gate {
+  margin-top: 6px; padding: 5px 8px; border-radius: 4px;
+  background: #fff3cd; font-size: 8px; color: #856404; line-height: 1.4;
+}
+.proc-gate b { color: #633806; }
+
+@media (max-width: 600px) {
+  .proc-flow { grid-template-columns: 1fr; }
+  .proc-arrow { display: none !important; }
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: #e0e0e0;
+    --color-text-secondary: #aaa;
+    --color-text-tertiary: #777;
+    --color-background-primary: #1a1a2e;
+    --color-background-secondary: #252540;
+    --color-background-info: #1a2a4a;
+    --color-border-tertiary: #3a3a5a;
+    --color-border-info: #5a8aff;
+  }
+  .pl-c, .pl-ctrl { background: #0C447C; color: #B5D4F4; }
+  .pl-v, .pl-veh  { background: #085041; color: #9FE1CB; }
+  .pl-g, .pl-gov  { background: #3C3489; color: #CECBF6; }
+  .pl-q, .pl-qual { background: #633806; color: #FAC775; }
+  .ph1 { background: #085041; color: #9FE1CB; }
+  .ph2 { background: #0C447C; color: #B5D4F4; }
+  .ph3 { background: #633806; color: #FAC775; }
+  .ph4 { background: #3C3489; color: #CECBF6; }
+  .ph5 { background: #501313; color: #F7C1C1; }
+  .raci-R { background: #1b4332; color: #95d5b2; }
+  .raci-A { background: #003049; color: #90caf9; }
+  .raci-C { background: #4a3800; color: #ffd54f; }
+  .raci-I { background: #333; color: #aaa; }
+  .proc-gate { background: #4a3800; }
+}
