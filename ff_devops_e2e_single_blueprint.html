@@ -1,0 +1,153 @@
+<style>
+*{box-sizing:border-box;margin:0}
+.bp{font-family:var(--font-sans);color:var(--color-text-primary);overflow-x:auto}
+.grid{display:grid;grid-template-columns:80px repeat(8,minmax(0,1fr));gap:0;min-width:720px}
+.hdr{font-size:9px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.4px;padding:4px 3px;text-align:center;border-bottom:1px solid var(--color-border-tertiary)}
+.row-label{font-size:9px;font-weight:500;color:var(--color-text-secondary);padding:6px 4px 6px 2px;border-right:1px solid var(--color-border-tertiary);display:flex;align-items:center;line-height:1.2}
+.cell{padding:4px 3px;border-bottom:0.5px solid var(--color-border-tertiary);border-right:0.5px solid var(--color-border-tertiary);font-size:9px;line-height:1.35;color:var(--color-text-secondary);position:relative;min-height:32px}
+.cell:last-child{border-right:none}
+.ph{font-size:8px;padding:1px 4px;border-radius:3px;display:inline-block;margin-bottom:2px;font-weight:500}
+.ph1{background:#E1F5EE;color:#085041}.ph2{background:#E6F1FB;color:#0C447C}.ph3{background:#FAEEDA;color:#633806}.ph4{background:#EEEDFE;color:#3C3489}.ph5{background:#FCEBEB;color:#791F1F}
+@media(prefers-color-scheme:dark){.ph1{background:#085041;color:#9FE1CB}.ph2{background:#0C447C;color:#B5D4F4}.ph3{background:#633806;color:#FAC775}.ph4{background:#3C3489;color:#CECBF6}.ph5{background:#501313;color:#F7C1C1}}
+.tool{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;margin:1px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);white-space:nowrap}
+.data{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;margin:1px;border:0.5px solid var(--color-border-info);color:var(--color-text-info);background:var(--color-background-info);white-space:nowrap}
+.plane{display:inline-block;font-size:7px;padding:1px 3px;border-radius:2px;margin:1px;font-weight:500}
+.pl-c{background:#E6F1FB;color:#0C447C}.pl-v{background:#E1F5EE;color:#085041}.pl-g{background:#EEEDFE;color:#3C3489}.pl-q{background:#FAEEDA;color:#633806}
+@media(prefers-color-scheme:dark){.pl-c{background:#0C447C;color:#B5D4F4}.pl-v{background:#085041;color:#9FE1CB}.pl-g{background:#3C3489;color:#CECBF6}.pl-q{background:#633806;color:#FAC775}}
+.sep{grid-column:1/-1;height:1px;background:var(--color-border-tertiary)}
+.sect{grid-column:1/-1;padding:4px 6px;font-size:9px;font-weight:500;background:var(--color-background-secondary);color:var(--color-text-secondary);border-bottom:1px solid var(--color-border-tertiary)}
+.arr{color:var(--color-text-tertiary);font-size:8px;position:absolute;right:-2px;top:50%;transform:translateY(-50%);z-index:1}
+.fb{grid-column:1/-1;padding:6px;text-align:center;font-size:9px;color:var(--color-text-tertiary);border-top:1px dashed var(--color-border-tertiary)}
+.fb b{color:var(--color-text-secondary)}
+.principle{grid-column:1/-1;padding:5px 6px;font-size:9px;color:var(--color-text-tertiary);background:var(--color-background-secondary);text-align:center;line-height:1.4}
+.note{padding:6px;font-size:9px;color:var(--color-text-tertiary);line-height:1.4;border-top:0.5px solid var(--color-border-tertiary)}
+.stg-title{font-weight:500;color:var(--color-text-primary);font-size:10px;display:block;margin-bottom:1px}
+</style>
+<div class="bp">
+<div class="grid">
+
+<div class="hdr" style="text-align:left;padding-left:4px"></div>
+<div class="hdr"><span class="stg-title">Plan</span></div>
+<div class="hdr"><span class="stg-title">Code</span></div>
+<div class="hdr"><span class="stg-title">Build</span></div>
+<div class="hdr"><span class="stg-title">Test</span></div>
+<div class="hdr"><span class="stg-title">Deploy</span></div>
+<div class="hdr"><span class="stg-title">Release</span></div>
+<div class="hdr"><span class="stg-title">Operate</span></div>
+<div class="hdr"><span class="stg-title">Monitor</span></div>
+
+<div class="sect">DevOps stage &amp; FF phase mapping</div>
+
+<div class="row-label">Phase</div>
+<div class="cell"><span class="ph ph1">Phase 1</span><br>Identity</div>
+<div class="cell"><span class="ph ph2">Phase 2</span><br>Binding</div>
+<div class="cell"><span class="ph ph3">Phase 3</span><br>Packaging</div>
+<div class="cell"><span class="ph ph3">Phase 3-4</span><br>Verify</div>
+<div class="cell"><span class="ph ph3">Phase 3</span><br>Delivery</div>
+<div class="cell"><span class="ph ph4">Phase 4</span><br>Decision</div>
+<div class="cell"><span class="ph ph4">Phase 4-5</span><br>Runtime</div>
+<div class="cell"><span class="ph ph5">Phase 5</span><br>Closure</div>
+
+<div class="row-label">Activity</div>
+<div class="cell">Feature 기획<br>Flag Spec 작성<br>ASIL 분류<span class="arr">→</span></div>
+<div class="cell">Toggle Point 구현<br>SDK 통합<br>Fail-safe 설계<span class="arr">→</span></div>
+<div class="cell">CI 6-Stage<br>MISRA-C 검증<br>COTA/SOTA 분리<span class="arr">→</span></div>
+<div class="cell">SIL/HIL 검증<br>Shadow Flag<br>커버리지 100%<span class="arr">→</span></div>
+<div class="cell">OTA 캠페인<br>Ring 1 카나리<br>Uptane 서명<span class="arr">→</span></div>
+<div class="cell">Go/No-Go 판정<br>Ring 확장<br>ASIL 3-트랙<span class="arr">→</span></div>
+<div class="cell">FoD 활성화<br>Kill-switch<br>SafeMode 합성<span class="arr">→</span></div>
+<div class="cell">DORA 5 KPI<br>Flag Hygiene<br>Cleanup 스프린트</div>
+
+<div class="sect">Toolchain</div>
+
+<div class="row-label">Primary</div>
+<div class="cell"><span class="tool">Jira</span><span class="tool">Confluence</span></div>
+<div class="cell"><span class="tool">Bitbucket</span><span class="tool">EA</span></div>
+<div class="cell"><span class="tool">Bamboo</span><span class="tool">SonarQube</span></div>
+<div class="cell"><span class="tool">Simulink</span><span class="tool">vECU</span></div>
+<div class="cell"><span class="tool">OTA Engine</span><span class="tool">Uptane</span></div>
+<div class="cell"><span class="tool">FF Console</span><span class="tool">Guardrail</span></div>
+<div class="cell"><span class="tool">CIF</span><span class="tool">MQTT</span></div>
+<div class="cell"><span class="tool">Telemetry</span><span class="tool">A/B Engine</span></div>
+
+<div class="row-label">Secondary</div>
+<div class="cell"><span class="tool">Codebeamer</span></div>
+<div class="cell"><span class="tool">PREEvision</span><span class="tool">MATLAB</span></div>
+<div class="cell"><span class="tool">PolySpace</span><span class="tool">ld-refs</span></div>
+<div class="cell"><span class="tool">HKSAT</span><span class="tool">디지털트윈</span></div>
+<div class="cell"><span class="tool">MQTT</span><span class="tool">Campaign</span></div>
+<div class="cell"><span class="tool">ML 이상탐지</span></div>
+<div class="cell"><span class="tool">FoD 결제</span><span class="tool">Kill-sw</span></div>
+<div class="cell"><span class="tool">Piranha</span><span class="tool">DORA</span></div>
+
+<div class="sect">FF data objects (input → output)</div>
+
+<div class="row-label">Input</div>
+<div class="cell"><span class="data">고객 요구</span><span class="data">Product backlog</span></div>
+<div class="cell"><span class="data">Flag Spec</span><span class="data">SDK guide</span></div>
+<div class="cell"><span class="data">코드+Flag Spec</span></div>
+<div class="cell"><span class="data">COTA/SOTA pkg</span></div>
+<div class="cell"><span class="data">서명된 패키지</span></div>
+<div class="cell"><span class="data">카나리 결과</span><span class="data">가드레일 KPI</span></div>
+<div class="cell"><span class="data">Entitlement</span><span class="data">구독 정보</span></div>
+<div class="cell"><span class="data">Exposure event</span><span class="data">텔레메트리</span></div>
+
+<div class="row-label">Output</div>
+<div class="cell"><span class="data">Feature ID</span><span class="data">Flag Spec YAML</span><span class="data">ASIL 분류서</span></div>
+<div class="cell"><span class="data">Toggle Point 코드</span><span class="data">Fail-safe 구현</span></div>
+<div class="cell"><span class="data">COTA pkg</span><span class="data">SOTA pkg</span><span class="data">Manifest</span></div>
+<div class="cell"><span class="data">검증 결과서</span><span class="data">Scorecard</span></div>
+<div class="cell"><span class="data">Ring 1 결과</span><span class="data">RXSWIN 체크</span></div>
+<div class="cell"><span class="data">Decision rec</span><span class="data">Release dossier</span></div>
+<div class="cell"><span class="data">FoD 상태</span><span class="data">Kill-sw 로그</span></div>
+<div class="cell"><span class="data">KPI 대시보드</span><span class="data">Stale 플래그 목록</span></div>
+
+<div class="sect">4-Plane engagement</div>
+
+<div class="row-label">Planes</div>
+<div class="cell"><span class="plane pl-c">Control</span> Feature Catalog 등록<br><span class="plane pl-g">Gov</span> ASIL 분류·Owner·TTL</div>
+<div class="cell"><span class="plane pl-v">Vehicle</span> SDK·캐시·NVRAM<br><span class="plane pl-c">Control</span> Policy ID 부여</div>
+<div class="cell"><span class="plane pl-q">Quality</span> CI 규칙 7개·ES95411<br><span class="plane pl-g">Gov</span> ASPICE 4.0 매핑</div>
+<div class="cell"><span class="plane pl-q">Quality</span> ON/OFF 커버리지<br><span class="plane pl-v">Vehicle</span> vECU L3 폴백</div>
+<div class="cell"><span class="plane pl-c">Control</span> 타겟팅·Ring 정책<br><span class="plane pl-v">Vehicle</span> Uptane 수신</div>
+<div class="cell"><span class="plane pl-q">Quality</span> 자동 롤백 5 트리거<br><span class="plane pl-g">Gov</span> 3-트랙 승인</div>
+<div class="cell"><span class="plane pl-v">Vehicle</span> Kill-switch 3-Lv<br><span class="plane pl-c">Control</span> FoD Entitlement</div>
+<div class="cell"><span class="plane pl-q">Quality</span> DORA+자동차 KPI<br><span class="plane pl-g">Gov</span> Cleanup 정책</div>
+
+<div class="sect">Governance guardrails (cross-cutting)</div>
+
+<div class="row-label">Rules</div>
+<div class="cell" style="grid-column:span 4"><b style="color:var(--color-text-primary);font-size:9px">SafeMode 합성:</b> effective_decision = variant_coding(can_exist) && auth(authorized) && safe_mode(not_restricted) && flag_rule(should_expose_now)</div>
+<div class="cell" style="grid-column:span 4"><b style="color:var(--color-text-primary);font-size:9px">No-go 4원칙:</b> 안전 직접 토글 금지 · SafeMode 우회 금지 · Owner/TTL 없는 플래그 금지 · 도메인 간 상태 불일치 금지</div>
+
+<div class="row-label">Flag types</div>
+<div class="cell" style="grid-column:span 8;display:flex;flex-wrap:wrap;gap:3px;align-items:center">
+<span class="plane pl-c">Release 90d</span>
+<span class="plane pl-v">Ops 30d</span>
+<span class="plane pl-q">Experiment 45d</span>
+<span class="plane pl-c">Permission 180d</span>
+<span class="plane pl-g">Safety-guarded 30d</span>
+<span class="plane pl-q">Shadow 60d</span>
+<span style="font-size:8px;color:var(--color-text-tertiary);margin-left:4px">← 6종 분류 + 기본 TTL</span>
+</div>
+
+<div class="fb">
+<b>↻ Feedback loop:</b> Monitor → Plan (Exposure 분석 → Feature Catalog 업데이트 → 다음 Sprint Phase 1로 순환) &nbsp;|&nbsp;
+<b>Deploy ≠ Release</b> &nbsp;|&nbsp; <b>Package ≠ Activation</b> &nbsp;|&nbsp; <b>Variant baseline + Dynamic FF policy</b>
+</div>
+
+</div>
+<div class="note">
+<b>범례:</b>
+<span class="ph ph1">Phase 1</span> Identity &nbsp;
+<span class="ph ph2">Phase 2</span> Binding &nbsp;
+<span class="ph ph3">Phase 3</span> Delivery &nbsp;
+<span class="ph ph4">Phase 4</span> Decision &nbsp;
+<span class="ph ph5">Phase 5</span> Closure &nbsp;|&nbsp;
+<span class="plane pl-c">Control</span>
+<span class="plane pl-v">Vehicle</span>
+<span class="plane pl-g">Governance</span>
+<span class="plane pl-q">Quality</span>
+&nbsp;|&nbsp; <span class="tool">도구</span> <span class="data">데이터 객체</span>
+</div>
+</div>

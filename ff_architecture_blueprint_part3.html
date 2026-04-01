@@ -1,0 +1,160 @@
+<style>
+*{box-sizing:border-box;margin:0}
+.w{font-family:var(--font-sans);color:var(--color-text-primary)}
+.tier{border:1px solid var(--color-border-tertiary);border-radius:10px;margin:4px 0;padding:8px;cursor:pointer;transition:all .15s;position:relative}
+.tier:hover{border-color:var(--color-border-secondary)}
+.tier.on{border-color:var(--color-border-info)}
+.t-h{display:flex;justify-content:space-between;align-items:center}
+.t-name{font-weight:500;font-size:12px}.t-sub{font-size:9px;color:var(--color-text-tertiary)}
+.t-tag{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:500}
+.t1{background:#E6F1FB;color:#0C447C}.t2{background:#EEEDFE;color:#3C3489}.t3{background:#E1F5EE;color:#085041}.t4{background:#FAEEDA;color:#633806}
+@media(prefers-color-scheme:dark){.t1{background:#0C447C;color:#B5D4F4}.t2{background:#3C3489;color:#CECBF6}.t3{background:#085041;color:#9FE1CB}.t4{background:#633806;color:#FAC775}}
+.t-detail{display:none;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary);font-size:10px;color:var(--color-text-secondary);line-height:1.5}
+.tier.on .t-detail{display:block}
+.planes{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0}
+.plane{border-radius:6px;padding:5px 6px;font-size:9px;border:0.5px solid var(--color-border-tertiary);line-height:1.35}
+.plane b{display:block;font-size:10px;margin-bottom:2px;color:var(--color-text-primary)}
+.pl-c{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pl-v{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.pl-g{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.pl-q{background:#FAEEDA;color:#633806;border-color:#FAC775}
+@media(prefers-color-scheme:dark){.pl-c{background:#0C447C;color:#B5D4F4}.pl-v{background:#085041;color:#9FE1CB}.pl-g{background:#3C3489;color:#CECBF6}.pl-q{background:#633806;color:#FAC775}}
+.arr-down{text-align:center;font-size:10px;color:var(--color-text-tertiary);margin:2px 0;letter-spacing:2px}
+.side{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.side-box{border:1px solid var(--color-border-tertiary);border-radius:8px;padding:6px 8px;font-size:9px;color:var(--color-text-secondary);line-height:1.5}
+.side-box b{color:var(--color-text-primary);font-weight:500;display:block;font-size:10px;margin-bottom:2px}
+.comp{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;margin:1px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary)}
+.data{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;margin:1px;border:0.5px solid var(--color-border-info);color:var(--color-text-info);background:var(--color-background-info)}
+.principles{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;margin-top:4px}
+.pr{font-size:9px;padding:3px 6px;border-left:2px solid var(--color-border-info);color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:0}
+.ifs{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.if-item{font-size:8px;padding:2px 5px;border-radius:4px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.legend{margin-top:6px;padding:6px;background:var(--color-background-secondary);border-radius:8px;font-size:9px;color:var(--color-text-tertiary);line-height:1.5}
+.legend b{color:var(--color-text-secondary)}
+</style>
+<div class="w">
+<div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:4px">각 Tier를 클릭하면 구성 요소, 데이터 객체, 4-Plane 역할이 표시됩니다</div>
+
+<div class="tier on" onclick="tog(this)">
+<div class="t-h"><div><span class="t-tag t1">Tier 1</span> <span class="t-name">Cloud — 정책 관리 + 캠페인</span></div><div class="t-sub">Ch.11–12</div></div>
+<div class="t-detail">
+<div class="planes">
+<div class="plane pl-c"><b>Control plane</b>Feature catalog, Policy engine, Targeting rule, Campaign engine, A/B 실험, SSE 스트리밍</div>
+<div class="plane pl-v"><b>Vehicle plane</b>(해당 없음 — Cloud에는 Vehicle 구성요소 없음)</div>
+<div class="plane pl-g"><b>Governance plane</b>RBAC, 4-eyes 승인, Audit trail, RXSWIN 게이트, ASPICE 추적성</div>
+<div class="plane pl-q"><b>Quality plane</b>Guardrail KPI, ML 이상 탐지(2σ), Ring 확장 판정, A/B 통계 유의성</div>
+</div>
+<span class="comp">OpenFeature Backend</span><span class="comp">Edge Proxy Farm</span><span class="comp">Campaign Engine</span><span class="comp">A/B Engine</span><span class="comp">Admin Console</span><span class="comp">Guardrail Monitor</span>
+<br><span class="data">Policy object</span><span class="data">Targeting rule</span><span class="data">Ring config</span><span class="data">Experiment config</span><span class="data">Exposure event</span>
+</div></div>
+
+<div class="arr-down">↓ SSE / MQTT ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="t-h"><div><span class="t-tag t2">Tier 2</span> <span class="t-name">Edge — 캐시 + 프록시</span></div><div class="t-sub">Ch.12</div></div>
+<div class="t-detail">
+<div class="planes">
+<div class="plane pl-c"><b>Control plane</b>Policy 캐시(Redis/임베디드), TTL 관리, Edge Proxy 라우팅</div>
+<div class="plane pl-v"><b>Vehicle plane</b>(해당 없음)</div>
+<div class="plane pl-g"><b>Governance plane</b>캐시 무효화 정책, Edge→Cloud 동기화 규칙</div>
+<div class="plane pl-q"><b>Quality plane</b>캐시 히트율 모니터링, 지연시간 SLO</div>
+</div>
+<span class="comp">Edge Proxy (Rust)</span><span class="comp">Policy Cache</span><span class="comp">Relay Server (KR/NA/EU/CN)</span>
+<br><span class="data">Cached policy snapshot</span><span class="data">TTL metadata</span>
+<br><div style="font-size:9px;margin-top:4px;color:var(--color-text-tertiary)">Cloud 단절 시 Edge 캐시로 평가 계속 → Fail-safe Level 2 (Cache)</div>
+</div></div>
+
+<div class="arr-down">↓ COTA (구성) / SOTA (바이너리) ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="t-h"><div><span class="t-tag t3">Tier 3</span> <span class="t-name">Vehicle — FF SDK + 평가 엔진</span></div><div class="t-sub">Ch.11, 13–15</div></div>
+<div class="t-detail">
+<div class="planes">
+<div class="plane pl-c"><b>Control plane</b>HPVC/HPC 내 FF Evaluator, Policy 로컬 캐시, NVRAM 영구 기본값</div>
+<div class="plane pl-v"><b>Vehicle plane</b>FF SDK (Mobilgene/ccOS/42dot), SafeMode 합성, Variant Coding 기준선 참조</div>
+<div class="plane pl-g"><b>Governance plane</b>Flag 메타데이터 로컬 저장, Owner/TTL/Type 검증</div>
+<div class="plane pl-q"><b>Quality plane</b>Exposure event 버퍼링, 텔레메트리 비동기 업로드</div>
+</div>
+<span class="comp">FF SDK (ara::com)</span><span class="comp">FF Evaluator</span><span class="comp">NVRAM Cache</span><span class="comp">SafeMode Guard</span><span class="comp">Exposure Logger</span>
+<br><span class="data">effective_decision</span><span class="data">variant && auth && safe_mode && flag_rule</span>
+<br><div style="font-size:9px;margin-top:4px"><b style="color:var(--color-text-info)">Dual-path (Ch.15):</b> COTA(구성 변경, SSE/MQTT) ≠ SOTA(바이너리, Uptane OTA). Package ≠ Activation.</div>
+</div></div>
+
+<div class="arr-down">↓ Toggle point 적용 ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="t-h"><div><span class="t-tag t4">Tier 4</span> <span class="t-name">ECU — Toggle point + 실행</span></div><div class="t-sub">Ch.13–14</div></div>
+<div class="t-detail">
+<div class="planes">
+<div class="plane pl-c"><b>Control plane</b>Toggle point에서 평가 결과 적용 (Eval point + Apply point 분리)</div>
+<div class="plane pl-v"><b>Vehicle plane</b>Domain ECU / Zone Controller 내 FF 적용, AUTOSAR BSW NVM 모듈</div>
+<div class="plane pl-g"><b>Governance plane</b>ASIL 등급별 접근 제어 (ASIL C-D → Dual-channel Ch.A+B+Voter)</div>
+<div class="plane pl-q"><b>Quality plane</b>DTC 로깅, 결함 주입 테스트 결과, HW Component Test 연동</div>
+</div>
+<span class="comp">Toggle Point</span><span class="comp">Latch-at-Init</span><span class="comp">Dual-channel Voter</span><span class="comp">DTC Logger</span>
+<br><span class="data">flag_value(ON/OFF)</span><span class="data">DTC event</span><span class="data">HW test result</span>
+</div></div>
+
+<div class="side">
+<div class="side-box">
+<b>Fail-safe 4단계 위계 (Ch.14)</b>
+<div style="display:flex;gap:2px;margin:4px 0">
+<span class="t-tag t1" style="flex:1;text-align:center">L1 Live</span>
+<span class="t-tag t2" style="flex:1;text-align:center">L2 Cache</span>
+<span class="t-tag t3" style="flex:1;text-align:center">L3 NVRAM</span>
+<span class="t-tag t4" style="flex:1;text-align:center">L4 Hardcoded</span>
+</div>
+서비스 응답 시 현재값 → 캐시 TTL 내 → NVRAM 영구 기본값 → 하드코딩 컴파일타임 기본값. 결정론적 폴백 보장 — 어떤 장애 상황에서도 차량이 안전한 기본 동작을 유지.
+</div>
+<div class="side-box">
+<b>Kill-switch 3-Level (Ch.17)</b>
+<div style="display:flex;gap:2px;margin:4px 0">
+<span class="t-tag" style="background:#FCEBEB;color:#791F1F;flex:1;text-align:center">L1 COTA &lt;5분</span>
+<span class="t-tag" style="background:#FAEEDA;color:#633806;flex:1;text-align:center">L2 UCM 20-30분</span>
+<span class="t-tag" style="background:var(--color-background-secondary);color:var(--color-text-secondary);flex:1;text-align:center">L3 딜러 수시간</span>
+</div>
+L1: SSE 긴급 푸시, 인메모리+NVRAM disabled<br>
+L2: 이전 버전 A/B 스왑, 재시작, DTC 클리어<br>
+L3: 서비스 불레틴, OBD-II/DoIP, 물리 접근
+</div>
+</div>
+
+<div class="side" style="margin-top:4px">
+<div class="side-box">
+<b>7대 설계 원칙 + No-go 4 (Ch.11)</b>
+<div class="principles">
+<div class="pr">1. Fail-safe by default</div>
+<div class="pr">2. 오프라인 평가 가능</div>
+<div class="pr">3. 결정론적 동작</div>
+<div class="pr">4. ASIL 비례적 엄격성</div>
+<div class="pr">5. Exposure 이벤트 필수</div>
+<div class="pr">6. 시간 제한 존재(TTL)</div>
+<div class="pr">7. 안전과 기능 분리</div>
+</div>
+<div style="margin-top:4px;font-size:9px;color:var(--color-text-danger)">No-go: 안전 직접 토글 / SafeMode 우회 / Owner 없는 플래그 / 도메인 간 불일치</div>
+</div>
+<div class="side-box">
+<b>6종 플래그 분류 + TTL (Ch.11)</b>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:4px">
+<span class="comp">Release 90d</span><span class="comp">Ops 30d</span>
+<span class="comp">Experiment 45d</span><span class="comp">Permission 180d</span>
+<span class="comp">Safety-guarded 30d</span><span class="comp">Shadow 60d</span>
+</div>
+<div style="margin-top:4px">
+<b>인터페이스 9개 (Ch.16):</b>
+<div class="ifs">
+<span class="if-item">ALM (Codebeamer)</span><span class="if-item">CI/CD (Bamboo)</span><span class="if-item">OTA (Campaign)</span>
+<span class="if-item">ECU (FF SDK)</span><span class="if-item">Telemetry (CIF)</span><span class="if-item">A/B (Experiment)</span>
+<span class="if-item">Safety (RXSWIN)</span><span class="if-item">VCDM (Variant)</span><span class="if-item">Customer (FoD)</span>
+</div></div>
+</div>
+</div>
+
+<div class="legend">
+<b>SafeMode 합성:</b> effective_decision = variant_coding(can_exist) && auth(authorized) && safe_mode(not_restricted) && flag_rule(should_expose_now)<br>
+<b>Domain vs Zonal (Ch.13):</b> CODA Domain arch(현재) + HPVC Zonal arch(2028+) 양쪽 병행 지원. Zone Controller가 Domain HPC를 대체하면 FF Evaluator 배치 위치만 변경.
+</div>
+</div>
+<script>
+function tog(el){document.querySelectorAll('.tier').forEach(t=>{if(t!==el)t.classList.remove('on')});el.classList.toggle('on')}
+</script>

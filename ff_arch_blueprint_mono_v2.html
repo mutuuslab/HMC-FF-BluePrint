@@ -1,0 +1,158 @@
+<style>
+*{box-sizing:border-box;margin:0}.w{font-family:var(--font-sans);color:var(--color-text-primary)}
+.ext{border:1px dashed var(--color-border-secondary);border-radius:8px;padding:6px 10px;margin-bottom:5px}
+.ext-h{font-size:10px;font-weight:500;color:var(--color-text-secondary);margin-bottom:3px}
+.ext-g{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+@media(max-width:500px){.ext-g{grid-template-columns:1fr 1fr}}
+.ext-i{font-size:9px;padding:4px 6px;background:var(--color-background-secondary);border-radius:4px;line-height:1.3;color:var(--color-text-secondary)}
+.ext-i b{color:var(--color-text-primary);display:block}
+.ar{text-align:center;font-size:9px;color:var(--color-text-tertiary);margin:2px 0}
+.tier{border:0.5px solid var(--color-border-tertiary);border-radius:8px;margin:3px 0;padding:7px 10px;cursor:pointer;transition:border-color .12s}
+.tier:hover{border-color:var(--color-border-secondary)}.tier.on{border-color:var(--color-text-info)}
+.tier.on .td{display:block}
+.th{display:flex;justify-content:space-between;align-items:center}
+.tn{font-weight:500;font-size:12px}.ts{font-size:9px;color:var(--color-text-tertiary)}
+.tg{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:500;margin-right:4px;background:var(--color-background-info);color:var(--color-text-info)}
+.td{display:none;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary);font-size:10px;line-height:1.5;color:var(--color-text-secondary)}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0}
+.p{border-radius:4px;padding:4px 6px;font-size:9px;line-height:1.3;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.p b{display:block;font-size:10px;margin-bottom:1px;color:var(--color-text-primary)}
+.c{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;margin:1px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);font-family:var(--font-mono)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}
+.bx{border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:6px 8px;font-size:9px;line-height:1.4;color:var(--color-text-secondary)}
+.bx b{color:var(--color-text-primary);font-weight:500;display:block;font-size:10px;margin-bottom:2px}
+.lv{display:flex;gap:2px;margin:3px 0}
+.lv span{flex:1;text-align:center;font-size:8px;padding:2px 0;border-radius:3px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.lv span.em{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.pr{font-size:9px;padding:2px 5px;border-left:2px solid var(--color-border-info);color:var(--color-text-secondary);background:var(--color-background-secondary);margin:1px 0;border-radius:0}
+.ft{margin-top:5px;padding:5px 8px;background:var(--color-background-secondary);border-radius:6px;font-size:9px;color:var(--color-text-tertiary);line-height:1.4;font-family:var(--font-mono)}
+</style>
+<div class="w">
+
+<div class="ext">
+<div class="ext-h">External systems (outside FF platform boundary)</div>
+<div class="ext-g">
+<div class="ext-i"><b>Product planning</b>자체 시스템 → Feature Req</div>
+<div class="ext-i"><b>Jira / Confluence</b>Feature backlog · 기획 문서 · Sprint tracking</div>
+<div class="ext-i"><b>Codebeamer (ALM)</b>SYS/SW REQ → Flag Spec trigger</div>
+<div class="ext-i"><b>PREEvision / EA</b>E/E arch · Variant · ASIL source</div>
+</div>
+</div>
+
+<div class="ar">↓ Feature Req + ASIL class + Variant baseline + REQ traceability ↓</div>
+
+<div class="tier on" onclick="tog(this)">
+<div class="th"><div><span class="tg">Tier 1</span><span class="tn">Cloud — Policy + Campaign</span></div><div class="ts">Ch.11–12</div></div>
+<div class="td">
+<div class="pg">
+<div class="p"><b>Control</b>Feature Catalog · Policy Engine · Targeting (VIN/Trim/Region/HW) · Campaign · A/B · SSE</div>
+<div class="p"><b>Vehicle</b>N/A</div>
+<div class="p"><b>Governance</b>RBAC · 4-eyes · Audit trail · RXSWIN gate · ASPICE traceability (↔ Codebeamer)</div>
+<div class="p"><b>Quality</b>Guardrail KPI · ML anomaly (2σ) · Ring Go/No-Go · Stat significance</div>
+</div>
+<span class="c">OpenFeature Backend</span> <span class="c">Edge Proxy Farm</span> <span class="c">Campaign Engine</span> <span class="c">A/B Engine</span> <span class="c">Admin Console</span> <span class="c">Guardrail Monitor</span>
+<br><span style="font-size:9px;color:var(--color-text-tertiary)">Inbound: Feature Req (Jira) · REQ trace (Codebeamer) · ASIL (PREEvision) · Variant (VCDM)</span>
+</div></div>
+
+<div class="ar">↓ SSE / MQTT / gRPC ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="th"><div><span class="tg">Tier 2</span><span class="tn">Edge — Cache + Proxy</span></div><div class="ts">Ch.12</div></div>
+<div class="td">
+<div class="pg">
+<div class="p"><b>Control</b>Policy cache (Redis/embedded) · TTL mgmt · Edge routing</div>
+<div class="p"><b>Vehicle</b>N/A</div>
+<div class="p"><b>Governance</b>Cache invalidation · Edge→Cloud sync</div>
+<div class="p"><b>Quality</b>Cache hit ratio · Latency SLO</div>
+</div>
+<span class="c">Edge Proxy (Rust)</span> <span class="c">Policy Cache</span> <span class="c">Relay (KR/NA/EU/CN)</span>
+<br><span style="font-size:9px;color:var(--color-text-tertiary)">Cloud disconnect → cache continues → Fail-safe L2</span>
+</div></div>
+
+<div class="ar">↓ COTA (config, SSE) / SOTA (binary, Uptane) ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="th"><div><span class="tg">Tier 3</span><span class="tn">Vehicle — FF SDK + Evaluator (HPVC / HPC)</span></div><div class="ts">Ch.11, 13–15</div></div>
+<div class="td">
+<div class="pg">
+<div class="p"><b>Control</b>FF Evaluator on HPVC/HPC · Policy local cache · NVRAM persistent default</div>
+<div class="p"><b>Vehicle</b>FF SDK (Mobilgene / ccOS / 42dot) · SafeMode synthesis · Variant baseline ref</div>
+<div class="p"><b>Governance</b>Flag metadata local · Owner/TTL/Type validation</div>
+<div class="p"><b>Quality</b>Exposure event buffer · Async telemetry</div>
+</div>
+<span class="c">FF SDK (ara::com)</span> <span class="c">FF Evaluator</span> <span class="c">NVRAM Cache</span> <span class="c">SafeMode Guard</span> <span class="c">Exposure Logger</span> <span class="c">Uptane Client</span>
+<br><span style="font-size:9px;color:var(--color-text-tertiary)">COTA(config) ≠ SOTA(binary). Package ≠ Activation.</span>
+</div></div>
+
+<div class="ar">↓ Toggle point apply ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="th"><div><span class="tg">Tier 4</span><span class="tn">ECU — Toggle Point + Execution</span></div><div class="ts">Ch.13–14</div></div>
+<div class="td">
+<div class="pg">
+<div class="p"><b>Control</b>Eval point + Apply point separation · Latch-at-Init</div>
+<div class="p"><b>Vehicle</b>Domain ECU / Zone Controller · AUTOSAR BSW NVM</div>
+<div class="p"><b>Governance</b>ASIL access control · ASIL C-D → Dual-channel + Voter</div>
+<div class="p"><b>Quality</b>DTC logging · Fault injection · MC/DC (ASIL C-D)</div>
+</div>
+<span class="c">Toggle Point</span> <span class="c">Latch-at-Init</span> <span class="c">Dual-channel Voter</span> <span class="c">DTC Logger</span> <span class="c">AUTOSAR NVM</span>
+</div></div>
+
+<div class="ar">↓ Telemetry + Exposure event ↓</div>
+
+<div class="ext">
+<div class="ext-h">Outbound external systems</div>
+<div class="ext-g">
+<div class="ext-i"><b>CIF / Telemetry</b>Exposure event · DTC → Guardrail</div>
+<div class="ext-i"><b>FoD / Entitlement</b>Subscription · Payment → Permission flag</div>
+<div class="ext-i"><b>Dealer / Diagnostics</b>OBD-II/DoIP · Kill-switch L3</div>
+<div class="ext-i"><b>Jira / Confluence</b>Flag lifecycle feedback → Sprint backlog</div>
+</div>
+</div>
+
+<div class="g2">
+<div class="bx">
+<b>Fail-safe 4-level (Ch.14)</b>
+<div class="lv">
+<span class="em">L1 Live</span><span>L2 Cache</span><span>L3 NVRAM</span><span>L4 Hardcoded</span>
+</div>
+Service resp → Cache TTL → NVRAM persistent → Compile-time default
+</div>
+<div class="bx">
+<b>Kill-switch 3-level (Ch.17)</b>
+<div class="lv">
+<span class="em">L1 COTA &lt;5min</span><span>L2 UCM 20-30min</span><span>L3 Dealer hrs</span>
+</div>
+L1: SSE push, disabled · L2: A/B swap · L3: OBD-II/DoIP
+</div>
+</div>
+
+<div class="g2" style="margin-top:4px">
+<div class="bx">
+<b>7 principles + 4 no-go (Ch.11)</b>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:3px">
+<div class="pr">Fail-safe by default</div><div class="pr">Offline evaluation</div>
+<div class="pr">Deterministic behavior</div><div class="pr">ASIL-proportional rigor</div>
+<div class="pr">Exposure event mandatory</div><div class="pr">Time-bounded (TTL)</div>
+<div class="pr" style="grid-column:span 2">Safety ≠ Feature separation</div>
+</div>
+<div style="margin-top:3px;font-size:9px;color:var(--color-text-danger)">No-go: direct safety toggle / SafeMode bypass / ownerless flag / cross-domain inconsistency</div>
+</div>
+<div class="bx">
+<b>6 flag types + TTL (Ch.11)</b>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:3px">
+<span class="c">Release 90d</span><span class="c">Ops 30d</span>
+<span class="c">Experiment 45d</span><span class="c">Permission 180d</span>
+<span class="c">Safety-guarded 30d</span><span class="c">Shadow 60d</span>
+</div>
+<div style="margin-top:4px"><b style="font-size:9px">9 interfaces (Ch.16):</b></div>
+<span class="c">ALM</span> <span class="c">CI/CD</span> <span class="c">OTA</span> <span class="c">ECU</span> <span class="c">Telemetry</span> <span class="c">A/B</span> <span class="c">Safety</span> <span class="c">VCDM</span> <span class="c">Customer</span>
+</div>
+</div>
+
+<div class="ft">
+effective_decision = variant_coding(can_exist) && auth(authorized) && safe_mode(not_restricted) && flag_rule(should_expose_now)<br>
+Domain arch (CODA) + Zonal arch (HPVC, 2028+) — Evaluator placement changes, 4-Plane model identical
+</div>
+</div>
+<script>function tog(el){document.querySelectorAll('.tier').forEach(t=>{if(t!==el)t.classList.remove('on')});el.classList.toggle('on')}</script>

@@ -1,0 +1,161 @@
+<style>
+*{box-sizing:border-box;margin:0}.w{font-family:var(--font-sans);color:var(--color-text-primary)}
+.ext{border:1px dashed var(--color-border-secondary);border-radius:10px;padding:6px 10px;margin-bottom:6px}
+.ext-h{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:4px}
+.ext-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.ext-item{font-size:9px;padding:4px 6px;border-radius:6px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);line-height:1.3;color:var(--color-text-secondary)}
+.ext-item b{color:var(--color-text-primary);display:block;font-size:10px}
+.ar{text-align:center;font-size:9px;color:var(--color-text-tertiary);margin:2px 0;letter-spacing:1px}
+.tier{border:1px solid var(--color-border-tertiary);border-radius:10px;margin:3px 0;padding:8px 10px;cursor:pointer;transition:all .12s}
+.tier:hover{border-color:var(--color-border-secondary)}.tier.on{border-color:var(--color-border-info)}
+.th{display:flex;justify-content:space-between;align-items:center}
+.tn{font-weight:500;font-size:12px}.ts2{font-size:9px;color:var(--color-text-tertiary)}
+.tag{font-size:8px;padding:1px 5px;border-radius:3px;font-weight:500;margin-right:4px}
+.t1{background:#E6F1FB;color:#0C447C}.t2{background:#EEEDFE;color:#3C3489}.t3{background:#E1F5EE;color:#085041}.t4{background:#FAEEDA;color:#633806}
+@media(prefers-color-scheme:dark){.t1{background:#0C447C;color:#B5D4F4}.t2{background:#3C3489;color:#CECBF6}.t3{background:#085041;color:#9FE1CB}.t4{background:#633806;color:#FAC775}}
+.td{display:none;margin-top:6px;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary);font-size:10px;line-height:1.5;color:var(--color-text-secondary)}
+.tier.on .td{display:block}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:4px 0}
+.p{border-radius:6px;padding:4px 6px;font-size:9px;line-height:1.3;border:0.5px solid var(--color-border-tertiary)}
+.p b{display:block;font-size:10px;margin-bottom:1px}
+.pc{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}.pv{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.pp{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}.pq{background:#FAEEDA;color:#633806;border-color:#FAC775}
+@media(prefers-color-scheme:dark){.pc{background:#0C447C;color:#B5D4F4}.pv{background:#085041;color:#9FE1CB}.pp{background:#3C3489;color:#CECBF6}.pq{background:#633806;color:#FAC775}}
+.c{display:inline-block;font-size:8px;padding:1px 4px;border-radius:3px;margin:1px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);font-family:var(--font-mono)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:5px}
+.bx{border:1px solid var(--color-border-tertiary);border-radius:8px;padding:6px 8px;font-size:9px;line-height:1.4;color:var(--color-text-secondary)}
+.bx b{color:var(--color-text-primary);font-weight:500;display:block;font-size:10px;margin-bottom:2px}
+.pr{font-size:9px;padding:2px 5px;border-left:2px solid var(--color-border-info);color:var(--color-text-secondary);background:var(--color-background-secondary);margin:1px 0}
+.ft{margin-top:5px;padding:5px 8px;background:var(--color-background-secondary);border-radius:8px;font-size:9px;color:var(--color-text-tertiary);line-height:1.4;font-family:var(--font-mono)}
+</style>
+<div class="w">
+<div class="ext">
+<div class="ext-h">External systems (FF platform boundary 밖)</div>
+<div class="ext-grid">
+<div class="ext-item"><b>Product planning</b>상품기획 자체 시스템 → Feature Requirement를 FF platform에 전달</div>
+<div class="ext-item"><b>ALM / Codebeamer</b>SYS/SW REQ → Feature-Function mapping → Flag Spec YAML 생성 trigger</div>
+<div class="ext-item"><b>E/E Arch / PREEvision</b>HW topology · Variant Coding baseline · ASIL classification source</div>
+</div>
+</div>
+
+<div class="ar">↓ Feature Requirement + ASIL class + Variant baseline (inbound) ↓</div>
+
+<div class="tier on" onclick="tog(this)">
+<div class="th"><div><span class="tag t1">Tier 1</span><span class="tn">Cloud — Policy + Campaign</span></div><div class="ts2">Ch.11–12</div></div>
+<div class="td">
+<div class="pg">
+<div class="p pc"><b>Control</b>Feature Catalog · Policy Engine · Targeting (VIN/Trim/Region/HW) · Campaign Engine · A/B Experiment · SSE Streaming</div>
+<div class="p pv"><b>Vehicle</b>N/A at cloud tier</div>
+<div class="p pp"><b>Governance</b>RBAC · 4-eyes approval · Audit trail · RXSWIN gate · ASPICE traceability</div>
+<div class="p pq"><b>Quality</b>Guardrail KPI · ML anomaly (2σ) · Ring Go/No-Go · Statistical significance</div>
+</div>
+<span class="c">OpenFeature Backend</span> <span class="c">Edge Proxy Farm (KR/NA/EU/CN)</span> <span class="c">Campaign Engine</span> <span class="c">A/B Engine</span> <span class="c">Admin Console</span> <span class="c">Guardrail Monitor</span>
+<br><span style="font-size:9px;color:var(--color-text-tertiary)">Inbound: Feature Req (from product planning) · ASIL class (from E/E arch) · Variant baseline (from VCDM)</span>
+</div></div>
+
+<div class="ar">↓ SSE / MQTT / gRPC ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="th"><div><span class="tag t2">Tier 2</span><span class="tn">Edge — Cache + Proxy</span></div><div class="ts2">Ch.12</div></div>
+<div class="td">
+<div class="pg">
+<div class="p pc"><b>Control</b>Policy cache (Redis/embedded) · TTL mgmt · Edge routing</div>
+<div class="p pv"><b>Vehicle</b>N/A</div>
+<div class="p pp"><b>Governance</b>Cache invalidation policy · Edge→Cloud sync rule</div>
+<div class="p pq"><b>Quality</b>Cache hit ratio · Latency SLO</div>
+</div>
+<span class="c">Edge Proxy (Rust)</span> <span class="c">Policy Cache</span> <span class="c">Relay Server</span>
+<br><span style="font-size:9px;color:var(--color-text-tertiary)">Cloud disconnect → Edge cache continues → Fail-safe L2</span>
+</div></div>
+
+<div class="ar">↓ COTA (config, SSE) / SOTA (binary, Uptane) ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="th"><div><span class="tag t3">Tier 3</span><span class="tn">Vehicle — FF SDK + Evaluator (HPVC / Domain HPC)</span></div><div class="ts2">Ch.11, 13–15</div></div>
+<div class="td">
+<div class="pg">
+<div class="p pc"><b>Control</b>FF Evaluator on HPVC/HPC · Policy local cache · NVRAM persistent default</div>
+<div class="p pv"><b>Vehicle</b>FF SDK (Mobilgene ara::com / ccOS / 42dot) · SafeMode synthesis · Variant Coding baseline ref</div>
+<div class="p pp"><b>Governance</b>Flag metadata local store · Owner/TTL/Type validation</div>
+<div class="p pq"><b>Quality</b>Exposure event buffer · Async telemetry upload</div>
+</div>
+<span class="c">FF SDK (ara::com)</span> <span class="c">FF Evaluator</span> <span class="c">NVRAM Cache</span> <span class="c">SafeMode Guard</span> <span class="c">Exposure Logger</span> <span class="c">Uptane Client</span>
+<br><span style="font-size:9px;color:var(--color-text-tertiary)">Dual-path: COTA(config, real-time) ≠ SOTA(binary, Uptane). Package ≠ Activation.</span>
+</div></div>
+
+<div class="ar">↓ Toggle point apply ↓</div>
+
+<div class="tier" onclick="tog(this)">
+<div class="th"><div><span class="tag t4">Tier 4</span><span class="tn">ECU — Toggle Point + Execution</span></div><div class="ts2">Ch.13–14</div></div>
+<div class="td">
+<div class="pg">
+<div class="p pc"><b>Control</b>Eval point + Apply point separation · Latch-at-Init pattern</div>
+<div class="p pv"><b>Vehicle</b>Domain ECU / Zone Controller · AUTOSAR BSW NVM module</div>
+<div class="p pp"><b>Governance</b>ASIL-level access control · ASIL C-D → Dual-channel Ch.A + Ch.B + Voter</div>
+<div class="p pq"><b>Quality</b>DTC logging · Fault injection · MC/DC coverage (ASIL C-D)</div>
+</div>
+<span class="c">Toggle Point</span> <span class="c">Latch-at-Init</span> <span class="c">Dual-channel Voter</span> <span class="c">DTC Logger</span> <span class="c">AUTOSAR NVM</span>
+</div></div>
+
+<div class="ar">↓ Telemetry + Exposure event (outbound) ↓</div>
+
+<div class="ext" style="margin-top:3px">
+<div class="ext-h">Outbound external systems</div>
+<div class="ext-grid">
+<div class="ext-item"><b>CIF / Telemetry</b>Exposure event · Vehicle health · DTC log → Guardrail evaluation</div>
+<div class="ext-item"><b>FoD / Entitlement</b>Subscription · Payment · Connect App → Permission flag activation</div>
+<div class="ext-item"><b>Dealer / Diagnostics</b>OBD-II / DoIP · Kill-switch L3 · Service bulletin → Physical fallback</div>
+</div>
+</div>
+
+<div class="g2">
+<div class="bx">
+<b>Fail-safe 4-level (Ch.14)</b>
+<div style="display:flex;gap:2px;margin:3px 0">
+<span class="tag t1" style="flex:1;text-align:center">L1 Live</span>
+<span class="tag t2" style="flex:1;text-align:center">L2 Cache</span>
+<span class="tag t3" style="flex:1;text-align:center">L3 NVRAM</span>
+<span class="tag t4" style="flex:1;text-align:center">L4 Hardcoded</span>
+</div>
+Service resp → Cache TTL → NVRAM persistent → Compile-time. Deterministic fallback.
+</div>
+<div class="bx">
+<b>Kill-switch 3-level (Ch.17)</b>
+<div style="display:flex;gap:2px;margin:3px 0">
+<span class="tag" style="background:#FCEBEB;color:#791F1F;flex:1;text-align:center">L1 COTA &lt;5min</span>
+<span class="tag" style="background:#FAEEDA;color:#633806;flex:1;text-align:center">L2 UCM 20-30min</span>
+<span class="tag" style="background:var(--color-background-secondary);color:var(--color-text-secondary);flex:1;text-align:center">L3 Dealer hrs</span>
+</div>
+L1: SSE push, inmem+NVRAM disabled · L2: A/B swap, restart · L3: OBD-II/DoIP
+</div>
+</div>
+
+<div class="g2" style="margin-top:4px">
+<div class="bx">
+<b>7 principles + 4 no-go (Ch.11)</b>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:3px">
+<div class="pr">Fail-safe by default</div><div class="pr">Offline evaluation</div>
+<div class="pr">Deterministic behavior</div><div class="pr">ASIL-proportional rigor</div>
+<div class="pr">Exposure event mandatory</div><div class="pr">Time-bounded (TTL)</div>
+<div class="pr" style="grid-column:span 2">Safety ≠ Feature separation</div>
+</div>
+<div style="margin-top:3px;font-size:9px;color:var(--color-text-danger)">No-go: direct safety toggle / SafeMode bypass / ownerless flag / cross-domain inconsistency</div>
+</div>
+<div class="bx">
+<b>6 flag types + TTL (Ch.11)</b>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:3px">
+<span class="c">Release 90d</span><span class="c">Ops 30d</span>
+<span class="c">Experiment 45d</span><span class="c">Permission 180d</span>
+<span class="c">Safety-guarded 30d</span><span class="c">Shadow 60d</span>
+</div>
+<div style="margin-top:4px"><b style="font-size:9px;color:var(--color-text-primary)">9 interfaces (Ch.16):</b></div>
+<span class="c">ALM</span> <span class="c">CI/CD</span> <span class="c">OTA</span> <span class="c">ECU</span> <span class="c">Telemetry</span> <span class="c">A/B</span> <span class="c">Safety</span> <span class="c">VCDM</span> <span class="c">Customer</span>
+</div>
+</div>
+
+<div class="ft">
+SafeMode synthesis: effective_decision = variant_coding(can_exist) && auth(authorized) && safe_mode(not_restricted) && flag_rule(should_expose_now)<br>
+Domain arch (CODA) + Zonal arch (HPVC, 2028+) — Evaluator placement changes, 4-Plane model identical
+</div>
+</div>
+<script>function tog(el){document.querySelectorAll('.tier').forEach(t=>{if(t!==el)t.classList.remove('on')});el.classList.toggle('on')}</script>

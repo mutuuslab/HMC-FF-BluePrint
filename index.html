@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMC Feature Flag Blueprint</title>
+<style>
+:root {
+  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --color-text-primary: #1a1a2e;
+  --color-text-secondary: #555;
+  --color-text-tertiary: #888;
+  --color-background-primary: #fff;
+  --color-background-secondary: #f5f6fa;
+  --color-border-primary: #d0d5dd;
+  --color-border-secondary: #b0b8c8;
+  --color-border-tertiary: #e2e6ed;
+  --color-border-info: #4a7dff;
+  --color-info: #4a7dff;
+  --accent: #4a7dff;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: #f0f2f5;
+  color: var(--color-text-primary);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #2d3561 100%);
+  color: #fff;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.header .sub {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
+/* Tab Navigation */
+.tab-bar {
+  background: #fff;
+  border-bottom: 1px solid var(--color-border-tertiary);
+  display: flex;
+  gap: 0;
+  padding: 0 16px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.tab {
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all 0.15s;
+  user-select: none;
+}
+.tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+}
+.tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Content Area */
+.content {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.page {
+  position: absolute;
+  inset: 0;
+  padding: 24px;
+  overflow-y: auto;
+  display: none;
+  background: var(--color-background-secondary);
+}
+.page.active {
+  display: block;
+}
+.page-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  padding: 24px;
+}
+.page-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--color-text-primary);
+}
+.page-desc {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-tertiary);
+}
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+.badge-v1 { background: #e8f0fe; color: #1a56db; }
+.badge-v2 { background: #fef3c7; color: #b45309; }
+.badge-new { background: #d1fae5; color: #047857; }
+
+/* Overview page */
+.overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+.card {
+  border: 1px solid var(--color-border-tertiary);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(74,125,255,0.12);
+  transform: translateY(-1px);
+}
+.card h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.card p {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+.card .card-tag {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 8px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-secondary);
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>HMC Feature Flag Blueprint</h1>
+    <div class="sub">Architecture & Data Flow Visualization</div>
+  </div>
+</div>
+
+<div class="tab-bar" id="tabBar">
+  <div class="tab active" data-page="overview">Overview</div>
+  <div class="tab" data-page="p1">4-Plane 4-Tier v1</div>
+  <div class="tab" data-page="p2">4-Plane 4-Tier v2</div>
+  <div class="tab" data-page="p3">Architecture Blueprint Part3</div>
+  <div class="tab" data-page="p4">Arch Blueprint Mono</div>
+  <div class="tab" data-page="p5">Arch Blueprint Mono v2</div>
+  <div class="tab" data-page="p6">E2E Data 3-Phase Lifecycle</div>
+  <div class="tab" data-page="p7">E2E DevOps Dataflow</div>
+  <div class="tab" data-page="p8">DevOps E2E Single Blueprint</div>
+  <div class="tab" data-page="p9">V-Model E2E Toolchain</div>
+  <div class="tab" data-page="p10">DevOps Infinity BoF</div>
+  <div class="tab" data-page="p11">E2E Data Flow Process</div>
+</div>
+
+<div class="content">
+  <!-- Overview -->
+  <div class="page active" id="overview">
+    <div class="page-inner">
+      <div class="page-title">Blueprint Overview</div>
+      <div class="page-desc">HMC Feature Flag 아키텍처 문서 모음 -- 각 카드를 클릭하면 해당 다이어그램으로 이동합니다</div>
+      <div class="overview-grid">
+        <div class="card" onclick="goTo('p1')">
+          <h3>4-Plane 4-Tier Architecture <span class="badge badge-v1">v1</span></h3>
+          <p>Cloud, Edge, Vehicle, ECU 4개 Tier와 Control/Data/Vehicle/Management 4개 Plane으로 구성된 FF 아키텍처</p>
+          <span class="card-tag">ff_4plane_4tier_architecture.html</span>
+        </div>
+        <div class="card" onclick="goTo('p2')">
+          <h3>4-Plane 4-Tier Architecture <span class="badge badge-v2">v2</span></h3>
+          <p>v1 기반 확장 -- External Integration, Plane별 상세 역할, 도메인/존 아키텍처 비교 추가</p>
+          <span class="card-tag">ff_4plane_4tier_arch_v2.html</span>
+        </div>
+        <div class="card" onclick="goTo('p3')">
+          <h3>Architecture Blueprint Part 3 <span class="badge badge-new">KR</span></h3>
+          <p>Tier별 구성요소, 데이터 객체, 4-Plane 역할을 한국어로 상세 정리한 아키텍처 블루프린트</p>
+          <span class="card-tag">ff_architecture_blueprint_part3.html</span>
+        </div>
+        <div class="card" onclick="goTo('p4')">
+          <h3>Arch Blueprint Mono <span class="badge badge-v1">v1</span></h3>
+          <p>단일 페이지 통합 블루프린트 -- External Integration + 4-Tier 구조 + Plane 매핑</p>
+          <span class="card-tag">ff_arch_blueprint_mono.html</span>
+        </div>
+        <div class="card" onclick="goTo('p5')">
+          <h3>Arch Blueprint Mono <span class="badge badge-v2">v2</span></h3>
+          <p>Mono 블루프린트 v2 -- 4열 그리드 레이아웃 + 확장된 컴포넌트 상세</p>
+          <span class="card-tag">ff_arch_blueprint_mono_v2.html</span>
+        </div>
+        <div class="card" onclick="goTo('p6')">
+          <h3>E2E Data 3-Phase Lifecycle <span class="badge badge-new">Data</span></h3>
+          <p>데이터 라이프사이클 3단계(생성-전파-소비) 관점의 End-to-End 흐름도</p>
+          <span class="card-tag">ff_e2e_data_3phase_lifecycle.html</span>
+        </div>
+        <div class="card" onclick="goTo('p7')">
+          <h3>E2E DevOps Dataflow <span class="badge badge-new">DevOps</span></h3>
+          <p>DevOps 파이프라인 관점의 데이터 흐름 -- 스테이지별 입출력 및 Plane 매핑</p>
+          <span class="card-tag">ff_e2e_devops_dataflow.html</span>
+        </div>
+        <div class="card" onclick="goTo('p8')">
+          <h3>DevOps E2E Single Blueprint <span class="badge badge-new">NEW</span></h3>
+          <p>DevOps 관점 E2E 단일 블루프린트 -- 전체 파이프라인을 하나의 그리드 뷰로 표현</p>
+          <span class="card-tag">ff_devops_e2e_single_blueprint.html</span>
+        </div>
+        <div class="card" onclick="goTo('p9')">
+          <h3>V-Model E2E Toolchain <span class="badge badge-new">SVG</span></h3>
+          <p>V-Model 기반 E2E 툴체인 다이어그램 -- 요구사항부터 검증까지의 전체 흐름</p>
+          <span class="card-tag">ff_vmodel_e2e_toolchain.svg</span>
+        </div>
+        <div class="card" onclick="goTo('p10')">
+          <h3>DevOps Infinity - Bill of Features <span class="badge badge-new">SVG</span></h3>
+          <p>DevOps Infinity Loop와 Feature Flag Bill of Features 통합 다이어그램</p>
+          <span class="card-tag">devops_infinity_ff_bill_of_features.svg</span>
+        </div>
+        <div class="card" onclick="goTo('p11')">
+          <h3>E2E Data Flow Process <span class="badge badge-new">NEW</span></h3>
+          <p>10-Step Happy Path + 8 Exception Paths — Cloud↔Edge↔Vehicle↔ECU 순환 데이터 흐름 + 13 Data Objects</p>
+          <span class="card-tag">ff_e2e_dataflow_process.html</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 1: 4-Plane 4-Tier v1 -->
+  <div class="page" id="p1">
+    <div class="page-inner">
+      <div class="page-title">4-Plane 4-Tier Architecture <span class="badge badge-v1">v1</span></div>
+      <div class="page-desc">Cloud / Edge / Vehicle / ECU Tier + Control / Data / Vehicle / Management Plane</div>
+      <div id="content-p1"></div>
+    </div>
+  </div>
+
+  <!-- Page 2: 4-Plane 4-Tier v2 -->
+  <div class="page" id="p2">
+    <div class="page-inner">
+      <div class="page-title">4-Plane 4-Tier Architecture <span class="badge badge-v2">v2</span></div>
+      <div class="page-desc">Extended version with External Integrations and Plane details</div>
+      <div id="content-p2"></div>
+    </div>
+  </div>
+
+  <!-- Page 3: Architecture Blueprint Part3 -->
+  <div class="page" id="p3">
+    <div class="page-inner">
+      <div class="page-title">Architecture Blueprint Part 3 <span class="badge badge-new">KR</span></div>
+      <div class="page-desc">Tier별 구성요소, 데이터 객체, 4-Plane 역할 상세</div>
+      <div id="content-p3"></div>
+    </div>
+  </div>
+
+  <!-- Page 4: Arch Blueprint Mono -->
+  <div class="page" id="p4">
+    <div class="page-inner">
+      <div class="page-title">Architecture Blueprint Mono <span class="badge badge-v1">v1</span></div>
+      <div class="page-desc">Single-page integrated blueprint</div>
+      <div id="content-p4"></div>
+    </div>
+  </div>
+
+  <!-- Page 5: Arch Blueprint Mono v2 -->
+  <div class="page" id="p5">
+    <div class="page-inner">
+      <div class="page-title">Architecture Blueprint Mono <span class="badge badge-v2">v2</span></div>
+      <div class="page-desc">Enhanced mono blueprint with 4-column grid layout</div>
+      <div id="content-p5"></div>
+    </div>
+  </div>
+
+  <!-- Page 6: E2E Data 3-Phase Lifecycle -->
+  <div class="page" id="p6">
+    <div class="page-inner">
+      <div class="page-title">E2E Data 3-Phase Lifecycle <span class="badge badge-new">Data</span></div>
+      <div class="page-desc">End-to-End data lifecycle: Creation - Propagation - Consumption</div>
+      <div id="content-p6"></div>
+    </div>
+  </div>
+
+  <!-- Page 7: E2E DevOps Dataflow -->
+  <div class="page" id="p7">
+    <div class="page-inner">
+      <div class="page-title">E2E DevOps Dataflow <span class="badge badge-new">DevOps</span></div>
+      <div class="page-desc">DevOps pipeline data flow with stage I/O and Plane mapping</div>
+      <div id="content-p7"></div>
+    </div>
+  </div>
+
+  <!-- Page 8: DevOps E2E Single Blueprint -->
+  <div class="page" id="p8">
+    <div class="page-inner">
+      <div class="page-title">DevOps E2E Single Blueprint <span class="badge badge-new">NEW</span></div>
+      <div class="page-desc">Full DevOps pipeline in a single grid view</div>
+      <div id="content-p8"></div>
+    </div>
+  </div>
+
+  <!-- Page 9: V-Model E2E Toolchain (SVG) -->
+  <div class="page" id="p9">
+    <div class="page-inner">
+      <div class="page-title">V-Model E2E Toolchain <span class="badge badge-new">SVG</span></div>
+      <div class="page-desc">V-Model based E2E toolchain diagram</div>
+      <div id="content-p9" style="text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- Page 10: DevOps Infinity Bill of Features (SVG) -->
+  <div class="page" id="p10">
+    <div class="page-inner">
+      <div class="page-title">DevOps Infinity - Bill of Features <span class="badge badge-new">SVG</span></div>
+      <div class="page-desc">DevOps Infinity Loop + Feature Flag Bill of Features</div>
+      <div id="content-p10" style="text-align:center"></div>
+    </div>
+  </div>
+
+  <!-- Page 11: E2E Data Flow Process -->
+  <div class="page" id="p11">
+    <div class="page-inner">
+      <div class="page-title">E2E Data Flow Process <span class="badge badge-new">NEW</span></div>
+      <div class="page-desc">10-Step Happy Path + 8 Exception Paths + 13 Data Objects + 4-Plane Integration</div>
+      <div id="content-p11"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const pages = {
+  p1: 'ff_4plane_4tier_architecture.html',
+  p2: 'ff_4plane_4tier_arch_v2.html',
+  p3: 'ff_architecture_blueprint_part3.html',
+  p4: 'ff_arch_blueprint_mono.html',
+  p5: 'ff_arch_blueprint_mono_v2.html',
+  p6: 'ff_e2e_data_3phase_lifecycle.html',
+  p7: 'ff_e2e_devops_dataflow (1).html',
+  p8: 'ff_devops_e2e_single_blueprint.html',
+  p9: 'ff_vmodel_e2e_toolchain.svg',
+  p10: 'devops_infinity_ff_bill_of_features.svg',
+  p11: 'ff_e2e_dataflow_process.html',
+};
+
+const loaded = {};
+
+async function loadPage(id) {
+  if (loaded[id]) return;
+  try {
+    const url = pages[id];
+    const resp = await fetch(url);
+    const container = document.getElementById('content-' + id);
+
+    // SVG files
+    if (url.endsWith('.svg')) {
+      const svgText = await resp.text();
+      container.innerHTML = svgText;
+      const svg = container.querySelector('svg');
+      if (svg) {
+        svg.style.maxWidth = '100%';
+        svg.style.height = 'auto';
+      }
+      loaded[id] = true;
+      return;
+    }
+
+    // HTML files
+    const html = await resp.text();
+    const styleMatch = html.match(/<style>([\s\S]*?)<\/style>/);
+    const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
+    let body = html;
+    if (styleMatch) body = body.replace(styleMatch[0], '');
+    if (scriptMatch) body = body.replace(scriptMatch[0], '');
+
+    if (styleMatch) {
+      const scopedStyle = document.createElement('style');
+      scopedStyle.textContent = styleMatch[1];
+      container.appendChild(scopedStyle);
+    }
+    const div = document.createElement('div');
+    div.className = 'w wrap';
+    div.innerHTML = body.trim();
+    container.appendChild(div);
+
+    if (scriptMatch) {
+      const script = document.createElement('script');
+      script.textContent = scriptMatch[1];
+      container.appendChild(script);
+    }
+    loaded[id] = true;
+  } catch (e) {
+    document.getElementById('content-' + id).innerHTML =
+      '<p style="color:red">Failed to load: ' + pages[id] + '</p>';
+  }
+}
+
+function switchPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+  if (pageId !== 'overview') loadPage(pageId);
+}
+
+function goTo(pageId) {
+  switchPage(pageId);
+}
+
+// Tab click
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => switchPage(tab.dataset.page));
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<style>
+*{box-sizing:border-box;margin:0}.w{font-family:var(--font-sans);color:var(--color-text-primary)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:6px}
+.tab{padding:6px 12px;font-size:11px;font-weight:500;cursor:pointer;border-radius:6px 6px 0 0;color:var(--color-text-secondary);border:1px solid transparent;border-bottom:none;transition:all .12s}
+.tab:hover{background:var(--color-background-secondary)}
+.tab.on{background:var(--color-background-primary);border-color:var(--color-border-tertiary);border-bottom:1px solid var(--color-background-primary);margin-bottom:-1px;z-index:1;color:var(--color-text-primary)}
+.pnl{display:none}.pnl.on{display:block}
+.phase-h{font-size:9px;color:var(--color-text-tertiary);margin-bottom:6px;line-height:1.4}
+.flow{display:flex;gap:0;overflow-x:auto;padding:2px 0}
+.step{flex:0 0 auto;width:92px;position:relative}
+.step-box{border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:5px;text-align:center;font-size:10px;font-weight:500;background:var(--color-background-primary);position:relative;min-height:38px;display:flex;align-items:center;justify-content:center;line-height:1.2}
+.step-box.hl{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.step-arr{position:absolute;right:-4px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--color-text-tertiary);z-index:1}
+.step-data{margin-top:3px;font-size:8px;color:var(--color-text-secondary);line-height:1.3;text-align:center;min-height:48px}
+.step-tool{margin-top:2px;font-size:7px;color:var(--color-text-tertiary);text-align:center}
+.sect{margin-top:8px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:6px 8px}
+.sect b{font-size:10px;color:var(--color-text-primary);display:block;margin-bottom:3px}
+.sect-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+@media(max-width:500px){.sect-grid{grid-template-columns:1fr}}
+.sect-item{font-size:9px;padding:4px 6px;background:var(--color-background-secondary);border-radius:4px;line-height:1.35;color:var(--color-text-secondary)}
+.sect-item span{font-weight:500;color:var(--color-text-primary)}
+.c{display:inline-block;font-size:7px;padding:1px 3px;border-radius:2px;margin:0 1px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);font-family:var(--font-mono)}
+.note{margin-top:6px;padding:5px 8px;background:var(--color-background-secondary);border-radius:6px;font-size:9px;color:var(--color-text-tertiary);line-height:1.4}
+.note b{color:var(--color-text-secondary)}
+</style>
+<div class="w">
+<div class="tabs">
+<div class="tab on" onclick="sw(0)">Pre-SOP (개발중)</div>
+<div class="tab" onclick="sw(1)">SOP (생산)</div>
+<div class="tab" onclick="sw(2)">Post-SOP (양산 후 운영)</div>
+</div>
+
+<div class="pnl on" id="p0">
+<div class="phase-h">차량 개발 단계 — 실차 없음. vECU / SIL / HIL 환경에서 FF를 설계·구현·검증. Flag Spec 정의부터 Shadow Flag 검증까지.</div>
+<div class="flow">
+<div class="step"><div class="step-box">Feature planning</div><div class="step-data">Product planning → Feature Req → Jira backlog</div><div class="step-tool"><span class="c">Jira</span><span class="c">Confluence</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">REQ / Flag Spec</div><div class="step-data">SYS/SW REQ → Feature-Function map → Flag Spec YAML</div><div class="step-tool"><span class="c">Codebeamer</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Architecture</div><div class="step-data">Toggle Point 배치 · Fail-safe 설계 · ASIL 분류 · Dual-ch</div><div class="step-tool"><span class="c">EA</span><span class="c">PREEvision</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Implementation</div><div class="step-data">FF SDK 통합 · Latch-at-Init · 코딩 패턴 적용</div><div class="step-tool"><span class="c">Bitbucket</span><span class="c">MATLAB</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box hl">CI / Build</div><div class="step-data">6-Stage pipeline · MISRA-C · ON/OFF coverage · COTA/SOTA pkg</div><div class="step-tool"><span class="c">Bamboo</span><span class="c">SonarQube</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box hl">V&V (virtual)</div><div class="step-data">vECU L1-3 · SIL/HIL · Shadow Flag · 조합 테스트</div><div class="step-tool"><span class="c">Simulink</span><span class="c">vECU</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Supplier gate</div><div class="step-data">ES95411 검증 · 납품물 11종 · SDK conformance</div><div class="step-tool"><span class="c">PolySpace</span></div></div>
+</div>
+<div class="sect">
+<b>Pre-SOP FF data objects</b>
+<div class="sect-grid">
+<div class="sect-item"><span>Feature ID</span> — canonical identifier, Jira→Codebeamer→Bitbucket 관통</div>
+<div class="sect-item"><span>Flag Spec YAML</span> — type, owner, TTL, ASIL class, targeting rule, default value</div>
+<div class="sect-item"><span>Toggle Point code</span> — eval point + apply point, Latch-at-Init pattern</div>
+<div class="sect-item"><span>vECU test result</span> — ON/OFF coverage 100%, NVRAM fallback 검증</div>
+<div class="sect-item"><span>Shadow Flag result</span> — 신규 로직 병행 실행 + 기존 로직 비교 데이터</div>
+<div class="sect-item"><span>Supplier delivery pkg</span> — ES95411 검증서, SDK conformance, 납품물 체크리스트</div>
+</div>
+</div>
+<div class="note"><b>핵심:</b> 실차가 없으므로 모든 FF 검증은 vECU + SIL/HIL에서 수행. NVRAM fallback(Fail-safe L3)을 검증하려면 vECU Level 3(BSW NVM 포함)이 필수. Shadow Flag으로 신규 알고리즘을 기존 대비 사전 비교 가능.</div>
+</div>
+
+<div class="pnl" id="p1">
+<div class="phase-h">양산 라인에서 차량 생산 — VIN별 초기 FF config 주입. Variant Coding baseline 위에 FF 초기 상태를 Factory flash로 기록.</div>
+<div class="flow">
+<div class="step"><div class="step-box">Order / BOM</div><div class="step-data">VIN 생성 · Trim/옵션 확정 · 시장/지역 결정</div><div class="step-tool"><span class="c">ERP/MES</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Variant Coding</div><div class="step-data">VCDM-P → HW/SW variant baseline per VIN</div><div class="step-tool"><span class="c">VCDM</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box hl">FF initial config</div><div class="step-data">Flag default values · Region gate · Trim-specific flags</div><div class="step-tool"><span class="c">FF Platform</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Factory flash</div><div class="step-data">SOTA binary + FF NVRAM defaults → ECU flash</div><div class="step-tool"><span class="c">EOL Tester</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">EOL test</div><div class="step-data">FF 초기 상태 검증 · DTC check · Fail-safe L4 확인</div><div class="step-tool"><span class="c">EOL Tester</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Ship</div><div class="step-data">VIN + FF config snapshot → 출고 기록</div><div class="step-tool"><span class="c">MES</span></div></div>
+</div>
+<div class="sect">
+<b>SOP FF data objects</b>
+<div class="sect-grid">
+<div class="sect-item"><span>VIN-level FF config</span> — variant baseline + flag defaults per VIN</div>
+<div class="sect-item"><span>NVRAM initial state</span> — Fail-safe L3 기본값, factory flash 시점에 기록</div>
+<div class="sect-item"><span>Region/Trim gate</span> — 시장별 컴플라이언스 플래그 초기값 (예: EU DRL)</div>
+<div class="sect-item"><span>EOL validation</span> — FF 초기 상태 정상 확인, DTC clear 확인</div>
+<div class="sect-item"><span>Config snapshot</span> — 출고 시점 전체 FF 상태 아카이브 (감사 추적용)</div>
+<div class="sect-item"><span>Variant↔Flag mapping</span> — can_exist(variant) → should_expose_now(flag) 매핑 기록</div>
+</div>
+</div>
+<div class="note"><b>핵심:</b> Factory에서는 SOTA binary를 ECU에 flash하면서 FF NVRAM defaults도 함께 기록. 이 시점의 FF 상태가 Fail-safe L4(hardcoded)의 기준이 됨. 출고 후 COTA로 flag 값만 변경 가능 — binary는 SOTA로만 변경.</div>
+</div>
+
+<div class="pnl" id="p2">
+<div class="phase-h">양산 후 필드 운영 — 고객 차량에 OTA로 FF 제어. Progressive delivery, FoD, A/B test, Kill-switch 등 FF의 핵심 가치가 실현되는 단계.</div>
+<div class="flow">
+<div class="step"><div class="step-box hl">Campaign create</div><div class="step-data">VIN targeting · Ring config · Guardrail KPI · Go/No-Go rule</div><div class="step-tool"><span class="c">Admin Console</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">COTA push</div><div class="step-data">SSE/MQTT → Policy update → Vehicle FF Evaluator refresh</div><div class="step-tool"><span class="c">MQTT</span><span class="c">SSE</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Ring 1 canary</div><div class="step-data">내부 50-100대 · Exposure event 수집 · ML anomaly watch</div><div class="step-tool"><span class="c">Guardrail</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Ring 2→3→4</div><div class="step-data">통계적 유의성 → Ring 확장 판정 → 카나리→GA</div><div class="step-tool"><span class="c">A/B Engine</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">FoD activate</div><div class="step-data">Subscription → Payment → Permission flag ON → 기능 활성화</div><div class="step-tool"><span class="c">FoD Store</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box">Monitor</div><div class="step-data">Telemetry · DORA 5 · Flag Hygiene · Cleanup sprint</div><div class="step-tool"><span class="c">CIF</span><span class="c">DORA</span></div><div class="step-arr">→</div></div>
+<div class="step"><div class="step-box" style="border-color:var(--color-text-danger);color:var(--color-text-danger)">Kill-switch</div><div class="step-data">L1 COTA &lt;5min · L2 UCM 20-30min · L3 Dealer</div><div class="step-tool"><span class="c">MQTT</span><span class="c">OBD-II</span></div></div>
+</div>
+<div class="sect">
+<b>Post-SOP FF data objects</b>
+<div class="sect-grid">
+<div class="sect-item"><span>Campaign manifest</span> — target VIN set, Ring config, guardrail thresholds, rollback trigger</div>
+<div class="sect-item"><span>Exposure event</span> — VIN + flag_id + variant + timestamp + outcome → 텔레메트리</div>
+<div class="sect-item"><span>Decision record</span> — Ring Go/No-Go 판정, 통계 유의성, reviewer sign-off</div>
+<div class="sect-item"><span>FoD entitlement</span> — subscription_id + VIN + permission_flag + expiry</div>
+<div class="sect-item"><span>Kill-switch log</span> — trigger reason, level, affected VINs, RCA report</div>
+<div class="sect-item"><span>Cleanup task</span> — stale flag detection, Piranha AST scan, Hygiene score</div>
+</div>
+</div>
+<div class="sect" style="margin-top:4px">
+<b>Post-SOP special scenarios</b>
+<div class="sect-grid">
+<div class="sect-item"><span>SW recall prevention</span> — 장애 탐지 → Kill-switch L1 → blast radius 차단 → RCA → 패치 SOTA → re-enable</div>
+<div class="sect-item"><span>A/B experiment</span> — VIN cohort split → Shadow/Treatment → exposure collect → stat test → winner deploy</div>
+<div class="sect-item"><span>Regional compliance</span> — 규제 변경 → region gate flag update → COTA push → 즉시 적용 (binary 변경 없이)</div>
+</div>
+</div>
+<div class="note"><b>핵심:</b> Post-SOP이 FF의 진짜 가치가 실현되는 단계. Deploy(OTA 패키지 배포) ≠ Release(기능 활성화) 분리가 여기서 동작. COTA로 flag config만 변경하여 binary 없이 기능 제어. Kill-switch는 CrowdStrike급 사태 방지의 마지막 방어선.</div>
+</div>
+
+</div>
+<script>function sw(i){document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',j===i));document.querySelectorAll('.pnl').forEach((p,j)=>p.classList.toggle('on',j===i))}</script>

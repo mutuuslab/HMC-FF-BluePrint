@@ -1,0 +1,132 @@
+<style>
+*{box-sizing:border-box;margin:0}
+.wrap{font-family:var(--font-sans);color:var(--color-text-primary);padding:8px 0}
+.stages{display:flex;gap:3px;overflow-x:auto;padding:4px 0}
+.stg{flex:0 0 auto;width:78px;cursor:pointer;text-align:center;border:1px solid var(--color-border-tertiary);border-radius:8px;padding:6px 4px;transition:all .15s;background:var(--color-background-primary);position:relative}
+.stg:hover,.stg.on{border-color:var(--color-border-info);background:var(--color-background-info)}
+.stg-n{font-size:9px;color:var(--color-text-tertiary);margin-bottom:2px}
+.stg-t{font-size:11px;font-weight:500;line-height:1.2}
+.stg-sub{font-size:8px;color:var(--color-text-secondary);margin-top:2px}
+.arrow-r{position:absolute;right:-5px;top:50%;transform:translateY(-50%);font-size:8px;color:var(--color-text-tertiary);z-index:1}
+.detail{margin-top:8px;border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px;min-height:200px;transition:all .2s}
+.d-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.d-phase{font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500}
+.d-title{font-size:14px;font-weight:500}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:500px){.d-grid{grid-template-columns:1fr}}
+.d-box{border:1px solid var(--color-border-tertiary);border-radius:8px;padding:8px}
+.d-box-h{font-size:10px;font-weight:500;color:var(--color-text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.d-item{font-size:11px;line-height:1.5;color:var(--color-text-primary)}
+.d-tool{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;margin:1px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.d-data{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;margin:1px;border:0.5px solid var(--color-border-info);color:var(--color-text-info);background:var(--color-background-info)}
+.planes{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px}
+.plane{border-radius:6px;padding:6px;text-align:center;font-size:9px;border:0.5px solid var(--color-border-tertiary)}
+.plane b{display:block;font-size:10px;margin-bottom:2px}
+.pl-ctrl{background:#E6F1FB;color:#0C447C;border-color:#85B7EB}
+.pl-veh{background:#E1F5EE;color:#085041;border-color:#5DCAA5}
+.pl-gov{background:#EEEDFE;color:#3C3489;border-color:#AFA9EC}
+.pl-qual{background:#FAEEDA;color:#633806;border-color:#FAC775}
+@media(prefers-color-scheme:dark){.pl-ctrl{background:#0C447C;color:#B5D4F4}.pl-veh{background:#085041;color:#9FE1CB}.pl-gov{background:#3C3489;color:#CECBF6}.pl-qual{background:#633806;color:#FAC775}}
+.flow{margin-top:6px;padding:6px 8px;border-radius:6px;background:var(--color-background-secondary);font-size:10px;color:var(--color-text-secondary);line-height:1.5}
+.flow b{color:var(--color-text-primary)}
+</style>
+<div class="wrap">
+<div style="font-size:13px;font-weight:500;margin-bottom:2px">Feature Flag E2E data flow × DevOps toolchain</div>
+<div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:6px">각 단계를 클릭하면 도구·데이터 객체·4-Plane 연동이 표시됩니다</div>
+<div class="stages" id="stgs"></div>
+<div class="detail" id="det"></div>
+<div class="planes">
+<div class="plane pl-ctrl"><b>Control Plane</b>정책·타겟팅·카탈로그</div>
+<div class="plane pl-veh"><b>Vehicle Plane</b>SDK·캐시·Fail-safe</div>
+<div class="plane pl-gov"><b>Governance Plane</b>승인·감사·R&R</div>
+<div class="plane pl-qual"><b>Quality Plane</b>가드레일·실험·DORA</div>
+</div>
+</div>
+<script>
+const S=[
+{n:"Plan",t:"Feature 기획",sub:"Identity",phase:"Phase 1",phaseColor:"#E1F5EE",
+tools:["Jira","Confluence","Codebeamer"],
+dataIn:["Customer Requirement","Product Backlog"],
+dataOut:["Feature ID","Flag Spec YAML","ASIL 분류","Bill of Features 등록"],
+planes:["Control: Feature Catalog에 Feature ID 등록, binding_time(selected/deselected/deferred) 결정","Governance: ASIL 분류 → 4-Tier 규제 등급 배정, Owner·TTL·Cleanup plan 지정"],
+flow:"상품기획 → Feature기획 → Feature-Function-사양 맵핑 → Feature Model 3-State 분류(Selected/Deselected/Deferred) → Deferred 항목이 FF 플랫폼 대상으로 확정"},
+{n:"Code",t:"설계 & 구현",sub:"Binding",phase:"Phase 2",phaseColor:"#E6F1FB",
+tools:["Bitbucket","EA","PREEvision","MATLAB"],
+dataIn:["Flag Spec YAML","SDK 통합 가이드"],
+dataOut:["Toggle Point 코드","Latch-at-Init 구현","Fail-safe 4단계 구현","Dual-channel(ASIL C-D)"],
+planes:["Vehicle: FF SDK 통합, Toggle Point 배치(Eval Point + Apply Point 분리), NVRAM 캐시 설계","Control: Policy ID + Targeting rule + Eval context schema 부여"],
+flow:"Flag별 코드 분리 + 빌드/차량 조건별 활성화. 허용 패턴: Latch-at-Init(초기화 1회 평가). 금지 패턴: 동일 루프 내 다중 평가, 중첩 플래그 2단계 이상"},
+{n:"Build",t:"빌드 & CI",sub:"Packaging",phase:"Phase 3",phaseColor:"#FAEEDA",
+tools:["Bamboo","SonarQube","PolySpace","ld-find-code-refs"],
+dataIn:["Toggle Point 코드","Flag Spec YAML"],
+dataOut:["COTA 패키지","SOTA 패키지","Campaign Manifest","플래그 참조 유효성 보고서"],
+planes:["Quality: CI 규칙 7개(MISRA-C, Race Condition, 커버리지 100%, WCET, CPU예산 avg<70%/max<90%, 결함주입, 영향성 분석)","Governance: ASPICE 4.0 매핑, ES95411 검증 게이트"],
+flow:"6-Stage 파이프라인: Commit → Static → Unit → Integration → Package → Sign. Feature Model 제약 기반 매트릭스 축소(Pairwise/3-way)로 조합 폭발 대응"},
+{n:"Test",t:"검증 & V&V",sub:"Gate",phase:"Phase 3-4",phaseColor:"#FAEEDA",
+tools:["MATLAB/Simulink","vECU L1-3","HKSAT","디지털트윈"],
+dataIn:["COTA/SOTA 패키지","vECU 바이너리"],
+dataOut:["SIL/HIL 검증 결과","Shadow Flag 검증 결과","ES95411 검증 결과서","Scenario Scorecard"],
+planes:["Quality: ON/OFF 양쪽 경로 커버리지 100%, Shadow Mode 병행 실행+비교, ML 이상 탐지(2σ)","Vehicle: vECU L3 NVRAM 폴백 검증 (Fail-safe Level 3 필수)"],
+flow:"4단계 통합 테스트: L1 컴포넌트(단일 FF) → L2 ECU(Cross-supplier) → L3 시스템(E2E) → L4 차량(실차). Shadow Flag: 신규 로직 병행 실행 + 출력 비교 → 전환 판단"},
+{n:"Deploy",t:"OTA 배포",sub:"Delivery",phase:"Phase 3",phaseColor:"#FAEEDA",
+tools:["Bamboo","OTA Campaign Engine","Uptane","MQTT"],
+dataIn:["서명된 COTA/SOTA 패키지","Campaign Manifest"],
+dataOut:["Ring 1 카나리(내부 50-100대)","VIN 타겟팅 규칙","RXSWIN 체크 결과","Kill-switch 배선"],
+planes:["Control: 타겟팅 규칙(VIN/모델/지역/HW/SW) 배포, Ring 1→2→3→4 확장 정책","Vehicle: COTA Uptane 이중서명 수신, 로컬 캐시 업데이트"],
+flow:"Deploy ≠ Release. Package ≠ Activation. 8-Stage OTA의 Stage 1-4: 배포 승인 → FF 구성 → 타겟팅 → 카나리. COTA(구성변경)와 SOTA(바이너리)는 별도 채널"},
+{n:"Release",t:"릴리스 판정",sub:"Decision",phase:"Phase 4",phaseColor:"#EEEDFE",
+tools:["FF Admin Console","Guardrail Monitor","텔레메트리 대시보드"],
+dataIn:["Ring 1 카나리 결과","가드레일 KPI","ML 이상 탐지 결과"],
+dataOut:["Decision Record","Ring 확장 판정(Go/No-Go)","차량 Release Dossier","RXSWIN Record"],
+planes:["Quality: 자동 롤백 트리거 5개(오류율 2σ, Safety DTC, 크래시율, 텔레메트리 <90%, NLP 불만)","Governance: ASIL 3-트랙 분기 승인(QM→FLC, ASIL A-B→SFRB, ASIL C-D→Safety Board+VFGB)"],
+flow:"Stage 5-6: 통계적 유의성 검정 + No-go boundary 판정 → Ring 확장(2→3→4). 비엔지니어링 팀(마케팅/고객지원)이 Release 토글을 직접 제어 가능 (Deploy 권한과 분리)"},
+{n:"Operate",t:"운영 & FoD",sub:"Runtime",phase:"Phase 4-5",phaseColor:"#EEEDFE",
+tools:["CIF System","FoD 결제 시스템","Kill-switch MQTT"],
+dataIn:["Entitlement Profile","구독 정보","FoD 결제 이벤트"],
+dataOut:["FoD 활성화 상태","Kill-switch 실행 로그","인시던트 RCA 보고서"],
+planes:["Vehicle: effective_decision = variant && auth && safe_mode && flag_rule. 3-Level Kill-switch: L1 COTA<5분 / L2 UCM 20-30분 / L3 딜러","Control: Permission 플래그 + Entitlement 동기화, FoD 결제-권한-활성화 일치성"],
+flow:"SafeMode 합성 규칙 적용. Kill-switch 에스컬레이션: Level 1(COTA 플래그 비활성화) → Level 2(UCM SW 롤백) → Level 3(딜러 리플래시). 인시던트 → 5-Why RCA → 플래그 처분"},
+{n:"Monitor",t:"피드백 & 정리",sub:"Closure",phase:"Phase 5",phaseColor:"#E1F5EE",
+tools:["텔레메트리 플랫폼","A/B 분석 엔진","Flag Hygiene 대시보드"],
+dataIn:["Exposure Event","텔레메트리 로그","고객 피드백"],
+dataOut:["KPI 대시보드(DORA 5+자동차 12)","A/B 실험 결과","Stale/Dead 플래그 목록","Cleanup 스프린트 리포트"],
+planes:["Quality: DORA 5 Metrics + 자동차 특화 KPI 12개 = 총 17개 지표 모니터링, Flag Debt 추적","Governance: Flag Hygiene(Piranha AST 자동 정리, Time Bomb CI, 분기 Cleanup 스프린트)"],
+flow:"Feedback Loop → Feature Catalog 업데이트 → 다음 Sprint의 Phase 1(Identity)로 순환. Flag TTL 만료 → 자동 알림 → 코드 정리 또는 영구 플래그 전환. 월간 Cleanup 스프린트 참여 의무"}
+];
+const c=document.getElementById('stgs'),d=document.getElementById('det');
+S.forEach((s,i)=>{
+const el=document.createElement('div');
+el.className='stg'+(i===0?' on':'');
+el.innerHTML=`<div class="stg-n">${s.n}</div><div class="stg-t">${s.t}</div><div class="stg-sub">${s.sub}</div>${i<S.length-1?'<span class="arrow-r">→</span>':''}`;
+el.onclick=()=>{document.querySelectorAll('.stg').forEach(x=>x.classList.remove('on'));el.classList.add('on');show(i)};
+c.appendChild(el);
+});
+function show(i){
+const s=S[i];
+d.innerHTML=`
+<div class="d-head">
+<span class="d-phase" style="background:${s.phaseColor};color:var(--color-text-primary)">${s.phase}</span>
+<span class="d-title">${s.n} — ${s.t}</span>
+</div>
+<div class="d-grid">
+<div class="d-box">
+<div class="d-box-h">도구 (Toolchain)</div>
+<div class="d-item">${s.tools.map(t=>`<span class="d-tool">${t}</span>`).join(' ')}</div>
+</div>
+<div class="d-box">
+<div class="d-box-h">입력 데이터</div>
+<div class="d-item">${s.dataIn.map(t=>`<span class="d-data">${t}</span>`).join(' ')}</div>
+</div>
+<div class="d-box">
+<div class="d-box-h">출력 데이터</div>
+<div class="d-item">${s.dataOut.map(t=>`<span class="d-data">${t}</span>`).join(' ')}</div>
+</div>
+<div class="d-box">
+<div class="d-box-h">4-Plane 연동</div>
+<div class="d-item" style="font-size:10px;line-height:1.4">${s.planes.map(p=>'• '+p).join('<br>')}</div>
+</div>
+</div>
+<div class="flow"><b>데이터 플로우:</b> ${s.flow}</div>`;
+}
+show(0);
+</script>
