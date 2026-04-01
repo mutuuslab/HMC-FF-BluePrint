@@ -1,0 +1,181 @@
+<style>
+.vm{font-family:var(--font-sans);color:var(--color-text-primary);padding:4px 0}
+.vm-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.vm-sub{font-size:10px;color:var(--color-text-tertiary);margin-bottom:6px}
+.vm-svg-wrap{text-align:center;overflow-x:auto;margin-bottom:8px}
+.vm-svg-wrap svg{max-width:100%;height:auto;cursor:pointer}
+.vm-svg-wrap svg g[onclick]:hover rect{filter:brightness(0.92)}
+.vm-detail{border:1px solid var(--color-border-tertiary);border-radius:10px;padding:12px;display:none;min-height:140px}
+.vm-detail.on{display:block}
+.vm-d-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap}
+.vm-d-title{font-size:14px;font-weight:600}
+.vm-d-e2e{font-size:8px;padding:2px 6px;border-radius:3px;background:var(--color-background-info,#f0f4ff);color:var(--color-text-info,#4a7dff);border:0.5px solid var(--color-border-info)}
+.vm-d-desc{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5}
+.vm-dtabs{display:flex;gap:2px;margin-bottom:8px;border-bottom:1px solid var(--color-border-tertiary)}
+.vm-dtab{padding:4px 10px;font-size:10px;font-weight:500;cursor:pointer;color:var(--color-text-tertiary);border-bottom:2px solid transparent;transition:all .12s;user-select:none}
+.vm-dtab:hover{color:var(--color-text-primary)}
+.vm-dtab.on{color:var(--color-text-info,#4a7dff);border-bottom-color:var(--color-text-info,#4a7dff)}
+.vm-dpnl{display:none}.vm-dpnl.on{display:block}
+.vm-proc-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:6px;align-items:start}
+@media(max-width:600px){.vm-proc-flow{grid-template-columns:1fr}.vm-proc-arrow{display:none!important}}
+.vm-proc-col{border:1px solid var(--color-border-tertiary);border-radius:6px;padding:6px;min-height:50px}
+.vm-proc-col-h{font-size:9px;font-weight:600;text-transform:uppercase;margin-bottom:4px;padding-bottom:3px;border-bottom:1px solid var(--color-border-tertiary)}
+.vm-proc-col-h.inp{color:#004085}.vm-proc-col-h.tsk{color:#155724}.vm-proc-col-h.out{color:#633806}
+.vm-proc-item{font-size:9px;padding:2px 0;line-height:1.4;color:var(--color-text-secondary)}
+.vm-proc-item::before{content:'• ';color:var(--color-text-tertiary)}
+.vm-proc-arrow{display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--color-text-tertiary);padding-top:18px}
+.vm-tool{display:inline-block;font-size:9px;padding:1px 5px;border-radius:3px;margin:1px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.vm-actors{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.vm-actor{font-size:9px;padding:3px 8px;border-radius:12px;background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.vm-actor.pri{background:#E6F1FB;color:#0C447C;border-color:#85B7EB;font-weight:500}
+.vm-asil{width:100%;border-collapse:collapse;font-size:9px;margin-top:6px}
+.vm-asil th{background:var(--color-background-secondary);padding:4px 6px;text-align:left;font-weight:600;border:0.5px solid var(--color-border-tertiary)}
+.vm-asil td{padding:4px 6px;border:0.5px solid var(--color-border-tertiary);line-height:1.4;vertical-align:top}
+.vm-aspice{margin-top:6px;padding:6px 8px;border-radius:6px;background:var(--color-background-secondary);font-size:9px;line-height:1.5;color:var(--color-text-secondary)}
+.vm-aspice b{color:var(--color-text-primary)}
+</style>
+
+<div class="vm">
+<div class="vm-title">V-Model E2E Toolchain × Feature Flag</div>
+<div class="vm-sub">각 V-Model 단계를 클릭하면 FF 연동 상세 — Process(Input→Task→Output), 도구, 역할, ASIL 확인</div>
+<div class="vm-svg-wrap" id="vmSvg"></div>
+<div class="vm-detail" id="vmDetail"></div>
+</div>
+
+<script>
+// Load SVG and override sendPrompt
+fetch('ff_vmodel_e2e_toolchain.svg').then(r=>r.text()).then(svg=>{
+  document.getElementById('vmSvg').innerHTML=svg;
+});
+// Override sendPrompt to show detail panel
+window.sendPrompt=function(msg){
+  const map={
+    'Feature Management 단계의 FF 연동을 상세히 설명해줘':0,
+    '요구사양 단계의 FF 연동을 상세히 설명해줘':1,
+    'SW 아키텍처 설계 단계의 FF 연동을 상세히 설명해줘':2,
+    'SW 단위구현 단계의 FF 연동을 상세히 설명해줘':3,
+    'SW 단위검증 단계의 FF 연동을 상세히 설명해줘':4,
+    'SW 통합검증 단계의 FF 연동을 상세히 설명해줘':5,
+    '빌드/배포 단계의 FF 연동을 상세히 설명해줘':6,
+    '운영 단계의 FF 연동을 상세히 설명해줘':7
+  };
+  const idx=map[msg];
+  if(idx!==undefined) vmShow(idx);
+};
+
+const VM=[
+{name:'Feature 기획',side:'left',e2e:'Step 1-2',aspice:'SYS.2 시스템 요구사항 분석',
+ tools:['Confluence','Jira','Codebeamer'],
+ desc:'Feature 요건 정의 → Flag Spec 생성 → ASIL 분류 → Bill of Features 등록. V-Model 좌측 최상단으로 전체 프로세스의 출발점.',
+ input:['Customer Requirement','Product Backlog','시장 분석 데이터','기존 Feature Catalog'],
+ tasks:['Feature brief 작성 + KPI 정의','Flag Spec YAML 생성 (키, 변형, 기본값, owner, TTL)','ASIL/Criticality 분류 (QM/A/B/C/D, Tier T0~T4)','Feature Interaction Matrix 갱신','3-State 결정 (Selected/Deselected/Deferred)','Bill of Features 등록'],
+ output:['Feature ID','Flag Spec YAML','ASIL Classification Record','Bill of Features'],
+ actors:[{n:'Product Owner',p:true},{n:'Safety Engineer',p:true},{n:'Development Lead',p:false}],
+ asil:{qm:'< 2시간, PO 승인',ab:'1~3일, Safety Engineer sign-off',cd:'1~2주, Safety Board + Independent Assessor'}
+},
+{name:'요구사양',side:'left',e2e:'Step 2',aspice:'SWE.1 SW 요구사항 분석',
+ tools:['Codebeamer','EA','PREEvision'],
+ desc:'시스템/SW 요구사항 ↔ Flag Spec 양방향 추적성 확보. ASPICE SYS.2→SWE.1 매핑. R156/R155 규제 분류.',
+ input:['Flag Spec YAML','SYS/SW Requirements','ASPICE Traceability Matrix'],
+ tasks:['양방향 추적성 확립: Req ↔ Flag Spec','ASPICE 매핑: SYS.2→SWE.1 링크','R156/R155 분류 등록 + RXSWIN 판정','협력사 인터페이스 통보 (Tier-1 관련 시)','Change Request 발행 + 추적 시작'],
+ output:['Traceability Record','ASPICE Mapping','R156 분류 기록','CR 추적 로그'],
+ actors:[{n:'ASPICE Process Owner',p:true},{n:'Architecture Team',p:true},{n:'Safety Engineer',p:false}],
+ asil:{qm:'< 1일, 자동 동기화',ab:'1~2일, Full ASPICE 추적성',cd:'2~5일, FFI 증빙 + 독립 감사'}
+},
+{name:'SW 아키텍처',side:'left',e2e:'Step 2-3',aspice:'SWE.2 SW 아키텍처 설계',
+ tools:['EA','PREEvision','MATLAB'],
+ desc:'Toggle Point 배치 설계, Fail-safe 4-level 아키텍처, Dual-channel 설계(ASIL C/D). Domain vs Zonal 호환성 확인.',
+ input:['Flag Spec YAML','시스템 아키텍처','ECU 토폴로지','SDK 통합 가이드'],
+ tasks:['Toggle Point 배치 (Eval Point + Apply Point 분리)','Fail-safe 아키텍처: L1 서비스→L2 캐시→L3 NVRAM→L4 하드코딩','Dual-channel 설계 (ASIL C/D: Ch.A + Ch.B + Voter)','NVRAM 캐시 설계 (persistence > 90일)','Domain(현재) vs Zonal(2028+) 호환성 확인','이중 경로 설계: Safety Path(UCM) vs QM Path(Streaming)'],
+ output:['Toggle Point 아키텍처 문서','Fail-safe 설계서','Dual-channel 설계서','ECU 전파 아키텍처'],
+ actors:[{n:'Architecture Team',p:true},{n:'SDK Dev Team',p:true},{n:'Safety Engineer',p:false}],
+ asil:{qm:'표준 단일 채널',ab:'Safety 리뷰 + Fail-safe L3',cd:'Dual-channel + FFI + Watchdog + 독립 리뷰'}
+},
+{name:'SW 단위구현',side:'left',e2e:'Step 2-3',aspice:'SWE.3 상세 설계 및 구현',
+ tools:['Bitbucket','MATLAB','Simulink'],
+ desc:'OpenFeature SDK 통합, ON/OFF 양쪽 경로 구현, Latch-at-Init 패턴 적용, MISRA-C 준수.',
+ input:['Toggle Point 아키텍처','SDK 통합 가이드','코딩 규칙 (MISRA-C)'],
+ tasks:['OpenFeature SDK Provider 통합','ON/OFF 양쪽 경로 코드 구현','Latch-at-Init 패턴 적용 (부팅 1회 고정)','Safety 특수처리 (ASIL C/D: dual-channel, watchdog)','Watchdog 모니터링 코드 + 타임아웃 safe default','MISRA-C 코딩 규칙 준수'],
+ output:['Toggle Point 코드','Latch-at-Init 구현','Fail-safe 4단계 구현','Dual-channel 코드 (C/D)'],
+ actors:[{n:'Development Lead',p:true},{n:'SDK Dev Team',p:true},{n:'Safety Specialist',p:false}],
+ asil:{qm:'표준 코딩',ab:'Safety 리뷰 추가',cd:'Dual-channel + FFI + Watchdog + MC/DC 준비'}
+},
+{name:'SW 단위검증',side:'right',e2e:'Step 3',aspice:'SWE.4 단위 검증',
+ tools:['PolySpace','SonarQube','ld-find-code-refs'],
+ desc:'정적 분석(MISRA-C), ON/OFF 양쪽 단위 테스트 100%, Feature Interaction CI 분석, Dead ref 감지.',
+ input:['Toggle Point 코드','Flag Spec YAML','CI 규칙 7개'],
+ tasks:['정적 분석: MISRA-C, Race Condition, PolySpace','ON/OFF 양쪽 경로 단위 테스트 100% 커버리지','FF_BOTH_PATHS 검증 (양쪽 경로 모두 실행)','FF_DEAD_REF time bomb (만료 참조 감지)','FF_SAFETY_REVIEW blocker (ASIL 게이트)','Feature Interaction CI 분석 (Pairwise/3-way 매트릭스)'],
+ output:['단위 테스트 결과','커버리지 분석 100%','정적 분석 리포트','Dead ref 감지 결과'],
+ actors:[{n:'QA / V&V Team',p:true},{n:'Development Lead',p:false}],
+ asil:{qm:'표준 CI',ab:'ASIL 게이트 추가',cd:'MC/DC + 결함주입 + Safety Board 서명'}
+},
+{name:'SW 통합검증',side:'right',e2e:'Step 3',aspice:'SWE.5 통합 검증',
+ tools:['MATLAB/Simulink','vECU L1-3','HKSAT','디지털트윈'],
+ desc:'MIL→SIL→HIL→디지털트윈 4단계 검증. Shadow Flag 병행 실행. ES95411 협력사 검증. NVRAM fallback 필수.',
+ input:['COTA/SOTA 패키지','vECU 바이너리','테스트 시나리오','ES95411 검증 요건'],
+ tasks:['MIL (MATLAB/Simulink — 알고리즘 로직, 상태 전이)','SIL (vECU — FF SDK 통합, 평가 로직, API 호환)','HIL (실 ECU + 시뮬레이터 — HW-SW 통합, 타이밍)','디지털 트윈 (CARLA/Autoware — AEB 카나리, FoD, 킬스위치, 오프라인)','Shadow Flag 검증 (신규 병행 실행 + 기존 비교)','ES95411 협력사 SW 검증 (IF-01~08)','Fail-safe L3 NVRAM 폴백 검증'],
+ output:['SIL/HIL 검증 결과서','Shadow Flag 비교 리포트','ES95411 검증결과서','Scenario Scorecard'],
+ actors:[{n:'QA / V&V Team',p:true},{n:'Safety Engineer',p:true},{n:'Supplier QA',p:false}],
+ asil:{qm:'SIL만',ab:'SIL + HIL',cd:'SIL + HIL + 디지털트윈 + 실차 + 독립 검증'}
+},
+{name:'빌드/배포',side:'right',e2e:'Step 3-6',aspice:'SWE.6 검증 적격성',
+ tools:['Bamboo','OTA Campaign Engine','Uptane','MQTT'],
+ desc:'6-Stage CI 파이프라인 + COTA/SOTA 패키지 분리 + Uptane 이중 서명 + 8-Stage OTA 배포.',
+ input:['검증 완료 코드','Flag Spec','서명 키','Campaign Manifest'],
+ tasks:['6-Stage CI: Commit→Static→Unit→Integration→Package→Sign','COTA/SOTA 패키지 분리 + 델타 압축','Uptane 이중 서명 (Image Repo + Director Repo)','Ring 할당: Canary 0.1%→Ring1~4→GA 100%','MQTT/CDN 이중경로 배포 (<30s push)','TCU Uptane 검증 → HPVC 로컬 캐시 갱신','Activation conditions 체크 (주차/배터리/동의/시간)'],
+ output:['Signed COTA/SOTA Package','배포 상태 대시보드','Ring 1 카나리 결과','Vehicle Version Manifest'],
+ actors:[{n:'Release Manager',p:true},{n:'OTA Operations',p:true},{n:'Platform Team',p:false},{n:'Safety Engineer',p:false}],
+ asil:{qm:'자동 배포',ab:'Safety 게이트 추가',cd:'Board 승인 per Ring + 이중채널 배포'}
+},
+{name:'운영',side:'right',e2e:'Step 7-10',aspice:'SUP.8/10 구성/변경관리',
+ tools:['CIF System','Guardrail Monitor','A/B Engine','Kill-switch MQTT','Flag Hygiene'],
+ desc:'Go/No-Go 판정, Ring 확장, FoD 활성화, Kill-switch 3-Level, 텔레메트리 모니터링, 90일 sunset.',
+ input:['카나리 결과','텔레메트리','가드레일 KPI','FoD 구독 정보'],
+ tasks:['ML anomaly detection (2σ + Isolation Forest + NLP)','Go/No-Go 판정 + Ring 확장 (0.1%→100%)','FoD 구독→Permission flag→기능 활성화','Kill-switch: L1 COTA(<5min)→L2 UCM(20-30min)→L3 딜러','DORA 5 + 자동차 KPI 12개 = 17지표 모니터링','5-Why RCA → 플래그 처분','90일 Release flag sunset + Cleanup sprint'],
+ output:['Decision Record','KPI Dashboard','Kill-switch 로그','RCA 보고서','Cleanup 리포트'],
+ actors:[{n:'Safety Engineer',p:true},{n:'OTA Operations',p:true},{n:'Release Manager',p:false},{n:'Platform Analytics',p:false}],
+ asil:{qm:'자동 Ring 확장, >2σ 자동 롤백',ab:'48~72h/Ring + Safety Eng 리뷰',cd:'Board ①~⑤ (총 6~12주) + Kill-switch L1/L2/L3'}
+}
+];
+
+let vmCur=0,vmDtab='process';
+
+function vmShow(i){
+  vmCur=i;vmDtab='process';vmRender();
+  document.getElementById('vmDetail').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function vmTab(t){vmDtab=t;vmRender();}
+
+function vmRender(){
+  const s=VM[vmCur],d=document.getElementById('vmDetail');d.classList.add('on');
+  const tabs=['process','tools','asil'];
+  const lbl={process:'Process (Input→Task→Output)',tools:'도구 & 역할',asil:'ASIL & ASPICE'};
+  let th='<div class="vm-dtabs">'+tabs.map(t=>`<div class="vm-dtab${vmDtab===t?' on':''}" onclick="vmTab('${t}')">${lbl[t]}</div>`).join('')+'</div>';
+
+  let hd=`<div class="vm-d-head"><div class="vm-d-title">${s.name}</div><span class="vm-d-e2e">E2E ${s.e2e}</span><span style="font-size:9px;color:var(--color-text-tertiary);margin-left:4px">V-Model ${s.side==='left'?'좌측(설계)':'우측(검증)'}</span></div><div class="vm-d-desc">${s.desc}</div>`;
+
+  // Process tab
+  let prH=`<div class="vm-dpnl${vmDtab==='process'?' on':''}"><div class="vm-proc-flow">
+    <div class="vm-proc-col"><div class="vm-proc-col-h inp">INPUT</div>${s.input.map(i=>`<div class="vm-proc-item">${i}</div>`).join('')}</div>
+    <div class="vm-proc-arrow">→</div>
+    <div class="vm-proc-col" style="border-color:#5DCAA5"><div class="vm-proc-col-h tsk">TASK</div>${s.tasks.map(t=>`<div class="vm-proc-item">${t}</div>`).join('')}</div>
+    <div class="vm-proc-arrow">→</div>
+    <div class="vm-proc-col"><div class="vm-proc-col-h out">OUTPUT</div>${s.output.map(o=>`<div class="vm-proc-item">${o}</div>`).join('')}</div>
+  </div></div>`;
+
+  // Tools & Actors tab
+  let toH=`<div class="vm-dpnl${vmDtab==='tools'?' on':''}">
+    <div style="margin-bottom:8px"><b style="font-size:10px">도구 (Toolchain)</b><br>${s.tools.map(t=>`<span class="vm-tool">${t}</span>`).join(' ')}</div>
+    <div><b style="font-size:10px">담당 역할</b><div class="vm-actors">${s.actors.map(a=>`<div class="vm-actor${a.p?' pri':''}">${a.p?'◆':'○'} ${a.n}</div>`).join('')}</div></div>
+  </div>`;
+
+  // ASIL & ASPICE tab
+  let asH=`<div class="vm-dpnl${vmDtab==='asil'?' on':''}">
+    <div class="vm-aspice"><b>ASPICE 매핑:</b> ${s.aspice}</div>
+    <table class="vm-asil"><tr><th>QM</th><th>ASIL A-B</th><th>ASIL C-D</th></tr>
+    <tr><td>${s.asil.qm}</td><td>${s.asil.ab}</td><td style="color:#a94442;font-weight:500">${s.asil.cd}</td></tr></table>
+  </div>`;
+
+  d.innerHTML=hd+th+prH+toH+asH;
+}
+</script>
