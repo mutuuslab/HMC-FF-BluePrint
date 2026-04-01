@@ -1,0 +1,34 @@
+<div class="edf" id="edfRoot">
+  <div class="edf-header">
+    <div>
+      <div class="edf-title">E2E Data Flow Process</div>
+      <div class="edf-sub">Cloud → Edge → Vehicle → ECU → Cloud 순환 데이터 흐름 — 각 스텝의 서브프로세스, 담당 역할, Gate 조건, ASIL 분기를 상세 확인</div>
+    </div>
+    <div class="edf-tabs">
+      <div class="edf-tab on" onclick="edfMode('happy')">Happy Path</div>
+      <div class="edf-tab" onclick="edfMode('exc')">Exception Paths</div>
+    </div>
+  </div>
+  <div class="edf-legend">
+    <div class="edf-leg"><div class="edf-leg-dot edf-pl-c"></div>Control</div>
+    <div class="edf-leg"><div class="edf-leg-dot edf-pl-v"></div>Vehicle</div>
+    <div class="edf-leg"><div class="edf-leg-dot edf-pl-g"></div>Governance</div>
+    <div class="edf-leg"><div class="edf-leg-dot edf-pl-q"></div>Quality</div>
+    <div class="edf-leg" style="margin-left:6px;border-left:1px solid var(--color-border-tertiary);padding-left:6px">
+      <span style="border-bottom:2px solid var(--color-border-primary,#d0d5dd);width:12px;display:inline-block"></span> Forward
+    </div>
+    <div class="edf-leg">
+      <span style="border-bottom:2px dashed var(--color-border-info,#4a7dff);width:12px;display:inline-block"></span> Feedback
+    </div>
+  </div>
+
+  <div class="edf-track-wrap"><div class="edf-track" id="edfTrack"></div></div>
+  <div class="edf-detail" id="edfDetail">
+    <div style="text-align:center;color:var(--color-text-tertiary);font-size:11px;padding:40px 0">위 스텝을 클릭하면 상세 정보가 표시됩니다</div>
+  </div>
+
+  <div class="edf-do-toggle" id="edfDoToggle" onclick="edfToggleDO()">
+    <span class="arr">&#9654;</span> 13 Data Objects 참조 (Cloud→Vehicle 5 | Vehicle→Cloud 4 | 양방향 4)
+  </div>
+  <div class="edf-do-body" id="edfDoBody"></div>
+</div>

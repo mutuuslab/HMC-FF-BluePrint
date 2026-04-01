@@ -1,0 +1,446 @@
+const RR_STEPS=['Flag Management','ALM/PLM Sync','CP Config','Uptane Signing','Distribution','Vehicle Receive','Local Evaluation','ECU Distribution','Telemetry Return','Quality Analysis'];
+const RR_SHORT=['Flag\nMgmt','ALM\nSync','CP\nConfig','Uptane\nSign','Distri-\nbution','Vehicle\nRx','Local\nEval','ECU\nDist','Tele-\nmetry','Quality'];
+
+const RR_ROLES=[
+{id:0,name:'Product Owner',layer:'feature',lc:'rr-ly-feature',
+ desc:'Feature 요건 정의, KPI 설정, 비즈니스 기준 승인. QM 범위 자율 Release 권한. Deploy≠Release 원칙에 따라 Release 결정의 비즈니스 측 최종 권한자.',
+ deploy:false,release:true,
+ raci:['R/A','','C','','','','','','','I'],
+ process:{
+   0:{input:['Customer Requirement','Product Backlog','시장 분석 데이터'],
+      tasks:['Feature brief 작성 + KPI 정의 (채택률, 매출 기여, NPS)','비즈니스 우선순위 판정 + 3-State 결정 (Deferred→FF 대상)','ASIL 분류 요청 → Safety Engineer에 위임','Bill of Features 최종 승인'],
+      output:['Feature Brief (KPI 포함)','비즈니스 승인 기록','BoF 등록 완료'],
+      gate:'Flag Spec 비즈니스 항목 완전성 + KPI 정의 완료'},
+   2:{input:['Flag Spec YAML','FoD 전략 문서'],
+      tasks:['Ring 할당 비즈니스 우선순위 결정','FoD 연동 여부 결정 + 가격 정책 확인','Release 스케줄 비즈니스 관점 검토'],
+      output:['비즈니스 우선순위 기록','FoD 연동 요건'],
+      gate:'FoD 정책 확정 (해당 시)'}
+ },
+ asil:{qm:'최종 승인자 (Accountable) — 독립 실행',ab:'Safety Engineer에게 승인 권한 이양, 비즈니스 자문만',cd:'Safety Board에게 승인 권한 이양, 비즈니스 요건만 제공'}
+},
+{id:1,name:'Development Lead',layer:'feature',lc:'rr-ly-feature',
+ desc:'Flag Spec 작성, API contract 설계, 개발팀 리드. Toggle Point 구현 총괄. 코드 품질 + 아키텍처 준수의 1차 책임.',
+ deploy:true,release:false,
+ raci:['C','R','R','','','','','','',''],
+ process:{
+   0:{input:['Feature Brief','ASIL Classification'],
+      tasks:['Flag Spec 작성 (키, 변형, 기본값, owner, TTL, 만료정책)','API contract 설계 (OpenFeature Provider interface)','Feature Interaction 영향도 사전 검토'],
+      output:['Flag Spec YAML (draft)','API Contract v1'],
+      gate:'Flag Spec draft 기술 완전성'},
+   1:{input:['Flag Spec YAML','SYS/SW Requirements','SDK 통합 가이드'],
+      tasks:['Toggle Point 배치 설계 (Eval Point + Apply Point 분리)','SDK 통합 가이드 작성 (OpenFeature Hook 구현)','ASPICE 추적성 기여 (Code→Spec 링크)','코드 리뷰 기준 수립 (FF 코딩 패턴 준수)'],
+      output:['Toggle Point 설계서','SDK 통합 가이드','코드 리뷰 체크리스트'],
+      gate:'Toggle Point 설계 리뷰 완료'},
+   2:{input:['Toggle Point 설계서','환경 구성 요건'],
+      tasks:['환경별(Dev/Staging/Prod) 구성 지원','Feature flag 네이밍 컨벤션 관리'],
+      output:['환경별 구성 프로파일'],
+      gate:'Dev/Staging 환경 검증 완료'}
+ },
+ asil:{qm:'독립 실행 — PO 승인만',ab:'Safety Engineer 리뷰 후 진행',cd:'Safety Engineer + Board 승인 후 진행. Dual-channel 코드 리뷰 필수'}
+},
+{id:2,name:'Safety Engineer',layer:'governance',lc:'rr-ly-governance',
+ desc:'ASIL 분류, FMEA/FTA 검토, Fail-safe 기본값 선정, Go/No-Go 판정. FF 안전 전반의 핵심 게이트키퍼. 9개 스텝에 관여하는 가장 광범위한 역할.',
+ deploy:false,release:true,
+ raci:['R/A','C','C','','C','C','R/A','C','C','R/A'],
+ process:{
+   0:{input:['Feature Brief','기존 Safety Case','ASIL 분류 기준서'],
+      tasks:['ASIL QM/A/B/C/D 판정 + Criticality Tier(T0~T4) 결정','FMEA/FTA 검토 (ASIL A 이상)','Feature Interaction Matrix 충돌 분석 (7% direct, 33% code)','Safety Case 작성 (ASIL C/D: 독립 검증 포함)'],
+      output:['ASIL Classification Record','Safety Case (C/D)','Feature Interaction 분석 결과'],
+      gate:'ASIL 분류 완료 + FMEA/FTA 신뢰도 > 90% (C/D)'},
+   1:{input:['Flag Spec YAML','R156/R155 기준'],
+      tasks:['R156/R155 분류 검증','FFI(Freedom from Interference) 검증 (ASIL C/D)','RXSWIN 해당 여부 판정'],
+      output:['R156 분류 기록','FFI 검증 결과','RXSWIN 판정 기록'],
+      gate:'R156 분류 + FFI 검증 완료'},
+   2:{input:['타겟팅 규칙','Fail-safe 기본값 후보'],
+      tasks:['Fallback safety default 검증 (NVRAM persistence > 90일)','오프라인 시나리오 안전성 증명 (ASIL C/D)','Kill-switch 인프라 안전성 검토'],
+      output:['Fail-safe 기본값 승인 기록','오프라인 안전성 증명서'],
+      gate:'Safety default 승인 + 오프라인 증명'},
+   4:{input:['배포 매니페스트','오프라인 시나리오'],
+      tasks:['오프라인 fallback snapshot 안전성 검증'],
+      output:['Fallback snapshot 승인'],
+      gate:'Snapshot 안전성 확인'},
+   5:{input:['Activation conditions','차량 상태 시나리오'],
+      tasks:['Activation conditions 안전성 평가 (주차/배터리/동의/시간)'],
+      output:['Activation 안전성 리뷰'],
+      gate:'Activation 조건 승인'},
+   6:{input:['Fail-safe 4-Tier 설계','ASIL C/D 요건'],
+      tasks:['Fail-safe L3/L4 기본값 선정 (ASIL C/D)','Dual-channel voter 설정 검증','Watchdog 타임아웃 값 결정 (<100ms)'],
+      output:['L3/L4 기본값 승인','Dual-channel 검증 결과'],
+      gate:'Fail-safe 기본값 + Dual-channel 승인'},
+   7:{input:['ECU 전파 경로 설계','Safety Path 요건'],
+      tasks:['Safety Path(UCM) 감독 (ASIL C/D)','Cross-ECU 일관성 안전 검토'],
+      output:['Safety Path 감독 기록'],
+      gate:'ASIL C/D ECU 전파 승인'},
+   8:{input:['DTC 데이터','이상 알림 기준'],
+      tasks:['DTC 우선순위 판정','이상 알림 임계치 설정 (Safety DTC = 0σ 증가 불허)'],
+      output:['DTC 우선순위 매트릭스','알림 임계치 설정'],
+      gate:'Safety DTC 기준 설정'},
+   9:{input:['텔레메트리 분석 결과','가드레일 KPI','Ring 진행 요청'],
+      tasks:['이상 리뷰 + Go/No-Go 판정','Ring 확장 안전성 sign-off','롤백 Level 결정 (L1/L2/L3)','5-Why RCA 안전 관점 리뷰'],
+      output:['Go/No-Go Decision Record','Safety Sign-off','롤백 지시서'],
+      gate:'Safety sign-off: "안전 회귀 미감지" + KPI 충족'}
+ },
+ asil:{qm:'자문 역할 (Consulted) — 직접 승인 없음',ab:'승인 권한 (Accountable) — 모든 스텝 sign-off 필수',cd:'공동 승인 (Safety Board와) — 모든 스텝 sign-off + Board 심의 준비'}
+},
+{id:3,name:'Safety Board',layer:'governance',lc:'rr-ly-governance',
+ desc:'ASIL C/D 공식 승인 기관. CSO 주재 Vehicle Feature Governance Board. Ring별 진행 승인(Board ①~⑤). 산하 소위원회: SFRB, FLC, REC.',
+ deploy:false,release:true,
+ raci:['A','','A','','','','','','','A'],
+ process:{
+   0:{input:['Safety Case','FMEA/FTA 결과','Independent Assessor 의견'],
+      tasks:['ASIL C/D Flag Spec 공식 심의','Independent Assessor 배정','Safety Case 최종 승인/반려'],
+      output:['Board 승인 기록','Independent Assessor 배정 통보'],
+      gate:'Board 만장일치 또는 CSO 최종결정'},
+   2:{input:['타겟팅 로직','Fail-safe 증명서'],
+      tasks:['ASIL C/D 타겟팅 로직 공식 승인','오프라인 시나리오 Board 차원 검토'],
+      output:['타겟팅 승인 기록'],
+      gate:'Board 승인'},
+   9:{input:['Safety Engineer Go/No-Go','텔레메트리 데이터','Ring 상태'],
+      tasks:['Ring별 진행 승인 Board ①(Canary)→②(Ring1)→③(Ring2)→④(Ring3)→⑤(Ring4)','긴급 Kill-switch Level 2+ 승인','GA 최종 선언'],
+      output:['Board Gate ①~⑤ 승인 기록','GA 선언문','Kill-switch 승인 (해당 시)'],
+      gate:'Board Gate 통과 (ASIL C/D: 총 5회, 6~12주)'}
+ },
+ asil:{qm:'관여 없음',ab:'산하 SFRB(Safety Flag Review Board)에서 월간 처리',cd:'직접 심의 — Board ①~⑤ 총 5회 게이트. 총 6~12주 소요'}
+},
+{id:4,name:'ASPICE Process Owner',layer:'governance',lc:'rr-ly-governance',
+ desc:'ASPICE 4.0 양방향 추적성 검증. SYS.2~SWE.6, SUP.8(구성관리)/SUP.10(변경요청) 매핑. 감사 증적 완전성 보장.',
+ deploy:false,release:false,
+ raci:['','R/A','','','','','','','','C'],
+ process:{
+   1:{input:['Flag Spec YAML','ALM 데이터 (Codebeamer)','기존 추적성 매트릭스'],
+      tasks:['양방향 추적성 확립: SYS.2→SWE.1→SWE.2→SWE.3→SWE.4→SWE.5→SWE.6','R156/R155 분류 등록 검증 (PLM 기록)','Change Request 발행 + 추적 관리','SUP.8(구성관리)/SUP.10(변경요청) 준수 확인','빈 참조 0건 검증 (Configuration Catalog 완전성)'],
+      output:['ASPICE Traceability Matrix','R156 분류 기록','CR 추적 로그','구성관리 준수 보고서'],
+      gate:'ASPICE 추적성 100% + 빈 참조 0건 + CR 추적 시작'},
+   9:{input:['감사 요청','증적 패키지'],
+      tasks:['감사 증적 완전성 검증','증적 패키지 자동 조립 지원'],
+      output:['감사 증적 보고서'],
+      gate:'증적 패키지 완전성 확인'}
+ },
+ asil:{qm:'기본 추적성 (자동 검증)',ab:'Full ASPICE 추적성 필수 (수동 리뷰 포함)',cd:'Full ASPICE + FFI 증빙 + 독립 감사 (2~5일)'}
+},
+{id:5,name:'Architecture Team',layer:'feature',lc:'rr-ly-feature',
+ desc:'시스템 Gatekeeper. Toggle Point 배치, Fail-safe 아키텍처, 이중 경로 프로토콜 설계. 표준 준수 강제 (VSS, uProtocol, OpenFeature).',
+ deploy:false,release:false,
+ raci:['','R','','','','','','R/A','',''],
+ process:{
+   1:{input:['Flag Spec YAML','시스템 아키텍처 문서','ECU 토폴로지'],
+      tasks:['컴포넌트 의존성 매핑 (Flag→ECU→Function)','Toggle Point 배치 설계 (Eval Point + Apply Point 분리)','Fail-safe 아키텍처 설계 (4-level: Service→Cache→NVRAM→Hardcoded)','Dual-channel 아키텍처 설계 (ASIL C/D: Ch.A + Ch.B + Voter)','Domain(현재) vs Zonal(2028+) 아키텍처 호환성 확인'],
+      output:['Toggle Point 아키텍처 문서','Fail-safe 설계서','Dual-channel 설계서 (C/D)'],
+      gate:'아키텍처 리뷰 완료 + Fail-safe L3 설계 확인'},
+   7:{input:['Flag 값','ECU 토폴로지','프로토콜 스택'],
+      tasks:['이중 경로 프로토콜 설계 (Safety Path UCM vs QM Path Streaming)','SOME/IP / ara::com / D-PDU API(ISO 22900-2) 라우팅 설계','Cross-ECU 일관성 보장 아키텍처 설계','Zone Controller 라우팅 정책 수립'],
+      output:['ECU 전파 아키텍처 문서','프로토콜 라우팅 매트릭스'],
+      gate:'ECU 전파 경로 리뷰 완료'}
+ },
+ asil:{qm:'표준 아키텍처 (단일 채널)',ab:'Safety 리뷰 추가 (Fail-safe L3 필수)',cd:'Dual-channel + FFI + Watchdog 아키텍처 필수 (독립 리뷰 포함)'}
+},
+{id:6,name:'Platform Team',layer:'platform',lc:'rr-ly-platform',
+ desc:'FF 엔진, SDK, Edge 인프라 제공. Deploy 권한 보유, Release 권한 없음. "도로를 깔되, 어떤 차가 달릴지는 결정하지 않는다."',
+ deploy:true,release:false,
+ raci:['','','R/A','','R','','C','','',''],
+ process:{
+   2:{input:['Flag Spec YAML','타겟팅 요건','환경 구성 요건'],
+      tasks:['타겟팅 규칙 엔진 설정 (VIN/모델/지역/HW/SW)','Consistent Hashing 검증: SHA256(featureKey+VIN) mod 100 균등 분포','환경별 구성 분리 (Dev/Staging/Prod)','Kill-switch 인프라: MQTT topic 배선 + TTL + Retained Message','Redis 캐시 + PostgreSQL 플래그 정의 설정'],
+      output:['타겟팅 규칙 구성 완료','Hashing 검증 보고서','Kill-switch 인프라 Ready'],
+      gate:'타겟팅 검증 + MQTT/CDN health check + Hashing 균등(±1.5%)'},
+   4:{input:['서명된 COTA 패키지','CDN 구성'],
+      tasks:['Regional Edge 노드 모니터링 (Korea/NA/EU/CN)','CDN 캐시 관리 + Push 트리거','MQTT Broker relay 운영','Daisy-chain 토폴로지 유지 (Cloud→Edge→Vehicle)'],
+      output:['배포 상태 대시보드','Edge 노드 Health 리포트'],
+      gate:'CDN 가용성 ≥ 99.9% + MQTT 정상'},
+   6:{input:['TTL 정책 요건','규칙 엔진 변경 요청'],
+      tasks:['TTL 정책 정의 (Safety Never / QM 7~30d / Comfort 24~72h)','규칙 엔진 유지보수 + 성능 최적화','캐시 무효화 정책 관리'],
+      output:['TTL 정책 문서','규칙 엔진 업데이트'],
+      gate:'TTL 정책 적용 확인'}
+ },
+ asil:{qm:'표준 인프라 운영',ab:'Regional Edge 이중화 필수',cd:'이중채널 병렬 배포 + Safety flag TTL=Never expire'}
+},
+{id:7,name:'Release Manager',layer:'feature',lc:'rr-ly-feature',
+ desc:'패키지 조립, 버전 관리, Ring 할당 계획. RCA + 플래그 처분 결정. 릴리스 트레인 엔지니어로서 프로그레시브 딜리버리 오케스트레이션.',
+ deploy:true,release:true,
+ raci:['','','R','R/A','','','','','','C'],
+ process:{
+   2:{input:['Flag Spec','비즈니스 우선순위','배포 일정'],
+      tasks:['Ring 할당 계획: Canary 0.1%→Ring1 1%→Ring2 5%→Ring3 25%→Ring4 50%→GA 100%','배포 스케줄 설정 (ASIL별 관찰 기간 반영)','승인 워크플로우 트리거'],
+      output:['Ring 할당 매트릭스','배포 스케줄','승인 요청'],
+      gate:'승인 워크플로우 전 단계 sign-off'},
+   3:{input:['Flag Manifest (unsigned)','Signing Keys','패키지 요건'],
+      tasks:['COTA 패키지 조립 (FF 구성 JSON + 메타데이터 + 매니페스트)','Semantic Versioning 관리 (major.minor.patch)','Activation conditions 설정 (vehicle_state, battery_soc, user_consent, time_window)','서명 검증 테스트 실행 (mock vehicle acceptance)'],
+      output:['Signed COTA Package','Director Metadata','서명 검증 테스트 리포트'],
+      gate:'패키지 크기 < 500KB + 이중 서명 유효 + 검증 테스트 Pass'},
+   9:{input:['인시던트 보고','텔레메트리 분석','RCA 요청'],
+      tasks:['5-Why Root Cause Analysis 주관 (24시간 내)','플래그 처분 결정: Rework(재배포) / Permanent Disable / Code Removal','90일 Release flag sunset 관리 (Day60 알림→Day85 정리→Day90 제거)'],
+      output:['RCA 보고서','플래그 처분 기록','Sunset 스케줄'],
+      gate:'RCA 24시간 내 완료 + 처분 결정'}
+ },
+ asil:{qm:'독립 실행',ab:'Safety Engineer 협의 후 실행',cd:'Safety Board 승인 후 실행 (Ring별 Board 스케줄 조율)'}
+},
+{id:8,name:'OTA Operations',layer:'platform',lc:'rr-ly-platform',
+ desc:'서명 실행, CDN 게시, MQTT/CDN 오케스트레이션, 배포 모니터링, Kill-switch 운영. 24/7 운영 책임.',
+ deploy:true,release:false,
+ raci:['','','','R','R/A','','','C','C','R'],
+ process:{
+   3:{input:['COTA 패키지 (unsigned)','HSM 키 접근권한'],
+      tasks:['HSM에서 서명 키 retrieve (ECDSA-P256)','Uptane 이중 서명 실행: Image Repo(SHA256 해시) + Director Repo(VIN 배정)','CDN 게시 + MQTT Retained Message 설정','만료 타임스탬프 삽입 (QM 90일, ASIL C/D 30~60일)'],
+      output:['Signed COTA Package (CDN 게시)','MQTT Retained Message 설정 완료'],
+      gate:'이중 서명 유효 + CDN 가용성 > 99%'},
+   4:{input:['Signed Package','타겟팅 규칙','배포 대상 VIN 목록'],
+      tasks:['MQTT Push 개시 (QoS 1, topic: fleet/{vin}/flags/config)','CDN Regional Push 오케스트레이션 (Korea/NA/EU/CN)','배포 확인 로그 관리 (수신/미수신 차량 리스트)','Fallback Polling 설정 (Push 실패 시 30s~5min)','오프라인 Bootstrap snapshot 생성'],
+      output:['배포 상태 대시보드','수신 확인 리포트','Fallback polling 활성 로그'],
+      gate:'배포 확인 ≥ 95% (30초 이내) + offline fallback CRC 통과'},
+   7:{input:['Flag 값','ECU 라우팅 정보'],
+      tasks:['메시지 라우팅 모니터링','전송 실패 재시도 관리'],
+      output:['전송 상태 로그'],
+      gate:'전송 성공률 확인'},
+   8:{input:['텔레메트리 스트림','Kafka 상태'],
+      tasks:['MQTT Broker 상태 모니터링','Kafka Consumer lag 모니터링 (< 5분)'],
+      output:['인프라 Health 리포트'],
+      gate:'Kafka lag < 5분'},
+   9:{input:['가드레일 알림','Kill-switch 요청','모니터링 대시보드'],
+      tasks:['실시간 모니터링 대시보드 운영 + 알림 관리','Kill-switch L1 실행: COTA flag 비활성화 (MQTT push <5min)','Kill-switch L2 에스컬레이션: UCM SW 롤백 (20-30min)','Kill-switch L3 딜러 리플래시 조율 (서비스 불레틴 발행)'],
+      output:['Kill-switch 실행 로그','딜러 서비스 불레틴 (L3)','모니터링 리포트'],
+      gate:'Kill-switch 응답 < 5min (L1) + 24/7 대응'}
+ },
+ asil:{qm:'표준 운영 (L1만)',ab:'강화 확인 로그 + L2 대기',cd:'이중채널 배포 + Kill-switch L1/L2/L3 전체 운영 + Board 보고'}
+},
+{id:9,name:'Cybersecurity Lead',layer:'governance',lc:'rr-ly-governance',
+ desc:'키 교체 관리, HSM 준수, TARA(위협 분석), R155 CSMS. 서명 무결성과 차량 사이버보안의 최종 책임자.',
+ deploy:false,release:false,
+ raci:['','','','C','','','','','',''],
+ process:{
+   3:{input:['서명 정책','HSM 상태','R155 CSMS 요건'],
+      tasks:['서명 키 교체 정책 관리 (정기 교체 주기 설정)','HSM 준수 확인 (FIPS 140-2 Level 3+)','Uptane 재전송 공격 방어 검증 (시퀀스 넘버 + 타임스탬프)','만료 정책 결정: QM 90일 / ASIL C/D 30~60일','R155 CSMS 관점 서명 체계 감사'],
+      output:['키 교체 정책 문서','HSM 준수 보고서','재전송 공격 방어 검증 결과'],
+      gate:'HSM 준수 + 재전송 방어 검증 + 키 만료 정책 적용'}
+ },
+ asil:{qm:'표준 키 관리 (90일 TTL)',ab:'강화 서명 검증 로그',cd:'단축 TTL(30~60일) + 시퀀스 넘버링 + 제3자 감사 필수'}
+},
+{id:10,name:'HPVC Firmware Team',layer:'platform',lc:'rr-ly-platform',
+ desc:'Uptane 검증 로직 구현, TCU→HPVC 수신 파이프라인. Safety/QM 이중 경로 분기. Activation conditions 체크.',
+ deploy:true,release:false,
+ raci:['','','','','','R/A','','','',''],
+ process:{
+   5:{input:['Signed COTA Package','Director Metadata','Activation Conditions 설정'],
+      tasks:['Uptane 이중 서명 검증: Image Repo(무결성) + Director Repo(타겟팅)','만료 타임스탬프 검증 (차량 시각 ≤ 만료시각)','ECU 호환성 점검 (min_firmware, SDK 의존성)','Activation conditions 평가: vehicle_state(주차), battery_soc(≥40%), user_consent, time_window','CRC + 무결성 해시 검증 (패키지 손상 감지)','Safety Path(UCM) vs QM Path(Streaming) 경로 분기','NVRAM/Cache 저장 (Fail-safe L2/L3)','수신 텔레메트리 보고 ("Config received, validated, stored")'],
+      output:['Validated Config','NVRAM Cache Update','Vehicle Version Manifest','수신 확인 텔레메트리'],
+      gate:'이중 서명 유효 + 만료 미경과 + ECU 호환 + Activation 충족 + CRC 일치'}
+ },
+ asil:{qm:'표준 Uptane 검증 (<1초)',ab:'Plausibility check 추가: 이전 대비 >20% 변경 시 경고 (<2초)',cd:'Dual-channel 검증(Ch.A+Ch.B 독립) + Watchdog(5초 초과→safe default) + Latch-at-Init (<5초)'}
+},
+{id:11,name:'SDK Development Team',layer:'platform',lc:'rr-ly-platform',
+ desc:'OpenFeature Provider 구현, Hook 로직, Fail-safe 4-Tier 평가 엔진. 차량 내 플래그 평가의 핵심 실행자.',
+ deploy:true,release:false,
+ raci:['','','','','','','R/A','','',''],
+ process:{
+   6:{input:['Validated Config','Context Schema (VIN, model, HW, region)','타겟팅 규칙 (로컬 캐시)'],
+      tasks:['OpenFeature SDK 초기화 (Provider 선택: OEM backend vs fallback)','평가 컨텍스트 구성 (VIN, HW version, ECU type, region, ASIL level)','Consistent Hashing 평가: SHA256(VIN+featureKey) → bucket → 롤아웃 %','Rule Engine 실행: Top-down First-match → 변형 선택 → default fallback','TTL/Staleness 체크: Safety Never / QM 7~30d / Comfort 24~72h','Fail-safe 4-Tier 결정: L1 서비스→L2 캐시→L3 NVRAM→L4 하드코딩','OpenFeature Hook 실행: Before(안전 제약), After(텔레메트리), Error(fallback)','Decision Log + Exposure Event 생성 (flag key, variant, timestamp, context)'],
+      output:['Flag Value (bool/multivariate)','Decision Log','Exposure Event'],
+      gate:'컨텍스트 완전성 + 규칙 CRC + Fail-safe 가용 + 버퍼 잔여 확인'}
+ },
+ asil:{qm:'단일 채널 (<100μs)',ab:'Plausibility check 추가: >20% 변경 시 경고 (<500μs)',cd:'Dual-channel(Ch.A+Ch.B) + Voter + Watchdog(<100ms→safe default) + Latch-at-Init(부팅 1회 고정) (<5ms)'}
+},
+{id:12,name:'ECU Firmware Teams',layer:'feature',lc:'rr-ly-feature',
+ desc:'수신측 구현: ADAS, Powertrain, Body, IVI, BMS. ECU별 flag 적용 + HPVC 피드백. Classic/Adaptive AUTOSAR 브릿지.',
+ deploy:false,release:false,
+ raci:['','','','','','','','R','',''],
+ process:{
+   7:{input:['Flag Value (from HPVC)','ECU Context','프로토콜 메시지'],
+      tasks:['ECU 수신 검증: 서명 확인(Safety), 값 범위 점검(plausibility), TTL 내 수신','메모리 저장: RAM(세션) / NVRAM(영구) / Flash(ASIL D 불변)','Classic AUTOSAR 브릿지: Flashing Adapter(ara::com→D-PDU API, ISO 22900-2)','Adaptive AUTOSAR: ara::com 직접 수신 (SOME/IP)','ECU → HPVC 피드백: "Flag received, applied, current state: X"','Cross-ECU 동기화 참여 (Zone Controller 경유)'],
+      output:['ECU-applied Flag State','Cross-ECU Sync Result','피드백 텔레메트리'],
+      gate:'네트워크 reachable + 펌웨어 호환 + 메모리 정상 + 전송 큐 < 1초'}
+ },
+ asil:{qm:'QM Path (ara::per Streaming): 단일 전송, 서명 없음, <100ms',ab:'선택적 서명 + Safety Path 가용',cd:'Safety Path(UCM SoftwareCluster) 필수 + 이중 메시지(primary+backup) + 명시적 ACK 필수 (2~5min)'}
+},
+{id:13,name:'QA / V&V Team',layer:'feature',lc:'rr-ly-feature',
+ desc:'지속적 검증 엔지니어. SIL/HIL/디지털트윈 검증, Shadow Flag 검증, ON/OFF 양쪽 커버리지 100%, ES95411 협력사 검증. 디지털 트윈 조합 테스트 + 프로덕션 지표 모니터링.',
+ deploy:false,release:false,
+ raci:['','','C','R/A','','','','','','C'],
+ process:{
+   2:{input:['Toggle Point 코드','Flag Spec YAML','CI 규칙 7개'],
+      tasks:['CI 6-Stage 파이프라인 검증 지원 (Unit→Integration→Package)','ON/OFF 양쪽 경로 커버리지 100% 확인','Feature Interaction CI 분석 지원 (Pairwise/3-way 매트릭스)','MISRA-C / Race Condition 정적 분석 리뷰'],
+      output:['CI 검증 리포트','커버리지 분석 결과'],
+      gate:'CI 규칙 7개 전부 Pass + ON/OFF 100%'},
+   3:{input:['COTA/SOTA 패키지','vECU 바이너리','테스트 시나리오'],
+      tasks:['MIL 검증 (MATLAB/Simulink — 알고리즘 로직, 상태 전이)','SIL 검증 (vECU — FF SDK 통합, 평가 로직, API 호환)','HIL 검증 (실 ECU + 시뮬레이터 — HW-SW 통합, 타이밍)','디지털 트윈 시나리오 검증 (CARLA/Autoware — AEB 카나리, FoD, 킬스위치, 오프라인)','Shadow Flag 검증 (신규 로직 병행 실행 + 기존 대비 비교 데이터)','ES95411 협력사 SW 검증 (SDK conformance + IF-01~08)','Fail-safe L3 NVRAM 폴백 검증 (vECU Level 3 BSW NVM 포함)'],
+      output:['SIL/HIL 검증 결과서','Shadow Flag 비교 리포트','ES95411 검증 결과서','Scenario Scorecard','Fail-safe L3 검증 결과'],
+      gate:'ON/OFF 양쪽 Pass + Shadow 비교 통과 + NVRAM fallback 검증 + ES95411 발급'},
+   9:{input:['텔레메트리 데이터','KPI 대시보드','Dead flag 목록'],
+      tasks:['프로덕션 지표 모니터링 지원 (DORA 5 + 자동차 12)','Flag Hygiene 점검 (owner 없는 flag, TTL 초과)','분기 Cleanup sprint 참여 (Dead flag ratio < 5% 목표)'],
+      output:['QA 검증 리포트','Cleanup sprint 참여 결과'],
+      gate:'Dead flag ratio < 5% + Cleanup 완료'}
+ },
+ asil:{qm:'SIL만 (vECU 가상 검증)',ab:'SIL + HIL (실 ECU 검증 추가)',cd:'SIL + HIL + 디지털트윈 + 실차 + 독립 검증 필수'}
+},
+{id:14,name:'Platform Analytics',layer:'platform',lc:'rr-ly-platform',
+
+ desc:'Kafka 메달리온 파이프라인, ML 이상탐지 모델, KPI 리포팅, A/B 실험 분석. 데이터 기반 의사결정의 근간.',
+ deploy:false,release:false,
+ raci:['','','','','','','','','R/A','C'],
+ process:{
+   8:{input:['Decision Log','Exposure Event','DTC/Error Data','차량 상태 텔레메트리'],
+      tasks:['Kafka 메달리온 파이프라인 운영: Bronze(raw)→Silver(cleaned)→Gold(aggregated)','스키마 검증 (메시지 포맷, 필드 타입) + 중복 제거 (24시간 내)','메타데이터 보강: VIN→모델/HW, flag key→owner/ASIL, variant→기대 동작','ClickHouse/BigQuery ETL + Redis 라이브 대시보드 (최근 1시간)'],
+      output:['Telemetry Stream (processed)','Vehicle Health Metrics','A/B Attribution 데이터'],
+      gate:'Kafka Consumer lag < 5분 + 스키마 검증 통과 + 커버리지 > 95%'},
+   9:{input:['Processed Telemetry','KPI Targets/SLO','A/B 실험 설계'],
+      tasks:['ML 이상 탐지 모델 운영: Gaussian 2σ + Isolation Forest + NLP 클러스터링','KPI 리포팅: DORA 5 + 자동차 특화 12개 = 총 17개 지표','A/B 실험 결과 분석 + 코호트 상관 분석','Flag hygiene 점검: Piranha AST 자동 정리 + Time Bomb CI','Dead flag ratio 산출 + Cleanup sprint 데이터 제공'],
+      output:['이상 탐지 알림','KPI Dashboard','A/B 실험 결과 리포트','Dead flag 목록'],
+      gate:'Dead flag ratio < 5% + KPI 달성 + 모델 정확도 유지'}
+ },
+ asil:{qm:'표준 분석 파이프라인',ab:'Safety DTC 우선 분석 채널',cd:'실시간 Safety DTC 별도 채널 + Safety Board 리포트 자동 생성'}
+}
+];
+
+let rrMode='matrix',rrSelRole=-1,rrSelStep=-1,rrDtab='overview';
+
+function rrView(mode){
+  rrMode=mode;rrSelRole=-1;rrSelStep=-1;
+  document.querySelectorAll('.rr-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.rr-tab')[mode==='matrix'?0:1].classList.add('on');
+  document.getElementById('rrMatrixWrap').style.display=mode==='matrix'?'':'none';
+  document.getElementById('rrCardsWrap').style.display=mode==='cards'?'':'none';
+  document.getElementById('rrDetail').classList.remove('on');
+  if(mode==='matrix') rrBuildMatrix(); else rrBuildCards();
+}
+
+function rrBuildMatrix(){
+  let h='<table class="rr-matrix"><tr><th>역할 / 조직계층</th>';
+  for(let s=0;s<10;s++) h+=`<th>S${s+1}<br><span style="font-weight:400;font-size:7px">${RR_SHORT[s].replace(/\n/g,'<br>')}</span></th>`;
+  h+='</tr>';
+  RR_ROLES.forEach((r,ri)=>{
+    h+=`<tr><td><span class="rr-layer ${r.lc}">${r.layer}</span> ${r.name}</td>`;
+    for(let s=0;s<10;s++){const v=r.raci[s];
+      if(v){const cls=v==='R/A'?'rr-RA':'rr-'+v.replace('/','');
+        h+=`<td onclick="rrClickCell(${ri},${s})"><span class="rr-cell ${cls}">${v}</span></td>`;
+      } else h+=`<td></td>`;}
+    h+='</tr>';});
+  h+='</table>';
+  document.getElementById('rrMatrixWrap').innerHTML=h;
+}
+
+function rrBuildCards(){
+  const w=document.getElementById('rrCardsWrap');let h='<div class="rr-cards">';
+  RR_ROLES.forEach((r,i)=>{
+    const pri=[],con=[];
+    r.raci.forEach((v,s)=>{if(v.includes('R'))pri.push(s+1);else if(v)con.push(s+1);});
+    const stepCount=Object.keys(r.process).length;
+    h+=`<div class="rr-card" onclick="rrClickRole(${i})" id="rrC${i}">
+      <div class="rr-card-name">${r.name}</div>
+      <div class="rr-card-layer"><span class="rr-layer ${r.lc}">${r.layer}</span>
+        ${r.deploy?'<span class="rr-perm rr-perm-deploy">Deploy</span>':''}
+        ${r.release?'<span class="rr-perm rr-perm-release">Release</span>':''}
+        <span style="font-size:8px;color:var(--color-text-tertiary);margin-left:4px">${stepCount} steps</span>
+      </div>
+      <div class="rr-card-desc">${r.desc}</div>
+      <div class="rr-card-badge">
+        ${pri.map(s=>`<span class="rr-card-sb pri">S${s} R</span>`).join('')}
+        ${con.map(s=>`<span class="rr-card-sb">S${s}</span>`).join('')}
+      </div>
+    </div>`;});
+  w.innerHTML=h+'</div>';
+}
+
+function rrClickCell(ri,si){rrSelRole=ri;rrSelStep=si;rrDtab='overview';rrShowDetail();}
+function rrClickRole(ri){
+  rrSelRole=ri;rrSelStep=-1;rrDtab='overview';
+  document.querySelectorAll('.rr-card').forEach(c=>c.classList.remove('on'));
+  document.getElementById('rrC'+ri).classList.add('on');
+  rrShowDetail();
+}
+function rrDtabSwitch(t){rrDtab=t;rrShowDetail();}
+
+function rrShowDetail(){
+  const ri=rrSelRole,si=rrSelStep,r=RR_ROLES[ri],d=document.getElementById('rrDetail');
+  d.classList.add('on');
+  const tabs=['overview','process','asil'];
+  const lbl={overview:'Overview & Timeline',process:'Process (Input→Task→Output)',asil:'ASIL 분기'};
+  let th='<div class="rr-dtabs">'+tabs.map(t=>`<div class="rr-dtab${rrDtab===t?' on':''}" onclick="rrDtabSwitch('${t}')">${lbl[t]}</div>`).join('')+'</div>';
+
+  // Header
+  let hd=`<div class="rr-d-head"><span class="rr-layer ${r.lc}">${r.layer}</span><div class="rr-d-title">${r.name}${si>=0?' × Step '+(si+1)+': '+RR_STEPS[si]:''}</div>
+    ${r.deploy?'<span class="rr-perm rr-perm-deploy">Deploy</span>':''}${r.release?'<span class="rr-perm rr-perm-release">Release</span>':''}
+    ${si>=0&&r.raci[si]?`<span class="rr-cell rr-${r.raci[si]==='R/A'?'RA':r.raci[si]}">${r.raci[si]}</span>`:''}
+  </div><div class="rr-d-desc">${r.desc}</div>`;
+
+  // Tab 1: Overview — stats + timeline
+  let statsH='';
+  if(si<0){
+    const rCount=r.raci.filter(v=>v.includes('R')).length;
+    const aCount=r.raci.filter(v=>v.includes('A')).length;
+    const totalSteps=r.raci.filter(v=>v).length;
+    const procSteps=Object.keys(r.process).length;
+    statsH=`<div class="rr-stats">
+      <div class="rr-stat"><div class="rr-stat-val">${totalSteps}</div><div class="rr-stat-lbl">관여 Steps</div></div>
+      <div class="rr-stat"><div class="rr-stat-val">${rCount}</div><div class="rr-stat-lbl">Responsible</div></div>
+      <div class="rr-stat"><div class="rr-stat-val">${aCount}</div><div class="rr-stat-lbl">Accountable</div></div>
+      <div class="rr-stat"><div class="rr-stat-val">${procSteps}</div><div class="rr-stat-lbl">Process 정의</div></div>
+    </div>`;
+  }
+  let tlH=`<div class="rr-timeline">${RR_STEPS.map((s,j)=>{const rv=r.raci[j];
+    return `<div class="rr-tl-step${j===si?' active':''}${rv?' active':''}" onclick="rrSelStep=${j};rrDtab='process';rrShowDetail()">
+      <span class="snum">S${j+1}</span>${s.split(' ')[0]}
+      ${rv?`<span class="rr-cell rr-${rv==='R/A'?'RA':rv}" style="display:block;margin-top:2px;font-size:8px">${rv}</span>`:''}
+    </div>`;}).join('')}</div>`;
+  let ovH=`<div class="rr-dpnl${rrDtab==='overview'?' on':''}">${statsH}${tlH}</div>`;
+
+  // Tab 2: Process (Input → Task → Output)
+  let procH='';
+  if(si>=0){
+    // Single step process
+    const p=r.process[si];
+    if(p){
+      procH=rrRenderProc(si,p,r.raci[si]);
+    } else {
+      procH=`<div style="font-size:10px;color:var(--color-text-tertiary);padding:12px">이 스텝에서 ${r.name}의 직접 프로세스 정의 없음 (${r.raci[si]||'N/A'} 역할)</div>`;
+    }
+  } else {
+    // All steps processes
+    const stepKeys=Object.keys(r.process).map(Number).sort((a,b)=>a-b);
+    if(stepKeys.length>0){
+      procH=stepKeys.map(s=>rrRenderProc(s,r.process[s],r.raci[s])).join('');
+    } else {
+      procH='<div style="font-size:10px;color:var(--color-text-tertiary);padding:12px">프로세스 정의 없음</div>';
+    }
+  }
+  let prH=`<div class="rr-dpnl${rrDtab==='process'?' on':''}">${procH}</div>`;
+
+  // Tab 3: ASIL
+  let asH=`<div class="rr-dpnl${rrDtab==='asil'?' on':''}">
+    <table class="rr-asil">
+      <tr><th style="width:25%">QM</th><th style="width:25%">ASIL A-B</th><th style="width:25%">ASIL C-D</th></tr>
+      <tr><td>${r.asil.qm}</td><td>${r.asil.ab}</td><td style="color:#a94442;font-weight:500">${r.asil.cd}</td></tr>
+    </table>
+  </div>`;
+
+  d.innerHTML=hd+th+ovH+prH+asH;
+  // Auto-open first process card
+  setTimeout(()=>{const first=d.querySelector('.rr-proc');if(first&&!first.classList.contains('open'))first.classList.add('open');},50);
+}
+
+function rrRenderProc(si,p,raci){
+  return `<div class="rr-proc open">
+    <div class="rr-proc-head" onclick="this.parentElement.classList.toggle('open')">
+      ${raci?`<span class="rr-cell rr-${raci==='R/A'?'RA':raci}">${raci}</span>`:''}
+      Step ${si+1}: ${RR_STEPS[si]}
+    </div>
+    <div class="rr-proc-body">
+      <div class="rr-proc-flow">
+        <div class="rr-proc-col">
+          <div class="rr-proc-col-h inp">INPUT</div>
+          ${p.input.map(i=>`<div class="rr-proc-item">${i}</div>`).join('')}
+        </div>
+        <div class="rr-proc-arrow">→</div>
+        <div class="rr-proc-col" style="border-color:#5DCAA5">
+          <div class="rr-proc-col-h tsk">TASK</div>
+          ${p.tasks.map(t=>`<div class="rr-proc-item">${t}</div>`).join('')}
+        </div>
+        <div class="rr-proc-arrow">→</div>
+        <div class="rr-proc-col">
+          <div class="rr-proc-col-h out">OUTPUT</div>
+          ${p.output.map(o=>`<div class="rr-proc-item">${o}</div>`).join('')}
+        </div>
+      </div>
+      ${p.gate?`<div class="rr-proc-gate"><b>Gate:</b> ${p.gate}</div>`:''}
+    </div>
+  </div>`;
+}
+
+rrBuildMatrix();

@@ -1,0 +1,97 @@
+/* === arch2- prefixed styles === */
+*{box-sizing:border-box;margin:0}
+.arch2-root{font-family:var(--font-sans,'Segoe UI',system-ui,sans-serif);color:var(--color-text-primary,#1a1a1a);font-size:13px;line-height:1.5;max-width:960px}
+
+/* E2E reference bar */
+.arch2-e2e-bar{display:flex;align-items:center;gap:0;margin-bottom:10px;overflow-x:auto}
+.arch2-e2e-step{flex:1;min-width:0;text-align:center;padding:5px 2px;font-size:8px;font-weight:600;line-height:1.2;border:1px solid var(--color-border-tertiary,#ddd);background:var(--color-background-secondary,#f5f5f5);color:var(--color-text-secondary,#555);position:relative;cursor:default}
+.arch2-e2e-step:first-child{border-radius:6px 0 0 6px}
+.arch2-e2e-step:last-child{border-radius:0 6px 6px 0}
+.arch2-e2e-step:not(:last-child)::after{content:'';position:absolute;right:-5px;top:50%;transform:translateY(-50%);width:0;height:0;border:5px solid transparent;border-left-color:var(--color-border-tertiary,#ddd);z-index:1}
+.arch2-e2e-step .arch2-step-num{display:block;font-size:7px;opacity:.6}
+.arch2-e2e-step.arch2-e2e-active{background:#0969da;color:#fff;border-color:#0969da}
+
+/* Depth 1: Tier cards */
+.arch2-tier{border:1.5px solid var(--color-border-tertiary,#ddd);border-radius:10px;margin:5px 0;padding:10px 12px;cursor:pointer;transition:all .15s ease}
+.arch2-tier:hover{border-color:var(--color-border-secondary,#aaa);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.arch2-tier.arch2-tier-open{border-color:#0969da;box-shadow:0 1px 6px rgba(9,105,218,.15)}
+.arch2-tier-header{display:flex;justify-content:space-between;align-items:center}
+.arch2-tier-left{display:flex;align-items:center;gap:6px}
+.arch2-tier-badge{font-size:9px;padding:2px 7px;border-radius:4px;font-weight:700;letter-spacing:.3px}
+.arch2-badge-cloud{background:#dbeafe;color:#1e40af}
+.arch2-badge-edge{background:#ede9fe;color:#5b21b6}
+.arch2-badge-vehicle{background:#d1fae5;color:#065f46}
+.arch2-badge-ecu{background:#fef3c7;color:#92400e}
+@media(prefers-color-scheme:dark){
+  .arch2-badge-cloud{background:#1e3a5f;color:#93c5fd}
+  .arch2-badge-edge{background:#3b1f7e;color:#c4b5fd}
+  .arch2-badge-vehicle{background:#064e3b;color:#6ee7b7}
+  .arch2-badge-ecu{background:#78350f;color:#fcd34d}
+  .arch2-e2e-step{background:var(--color-background-secondary,#2a2a2a);color:var(--color-text-secondary,#aaa);border-color:var(--color-border-tertiary,#444)}
+  .arch2-e2e-step:not(:last-child)::after{border-left-color:var(--color-border-tertiary,#444)}
+  .arch2-e2e-step.arch2-e2e-active{background:#1f6feb;border-color:#1f6feb}
+  .arch2-plane-ctrl{background:#1e3a5f!important;color:#93c5fd!important;border-color:#2563eb!important}
+  .arch2-plane-veh{background:#064e3b!important;color:#6ee7b7!important;border-color:#059669!important}
+  .arch2-plane-gov{background:#3b1f7e!important;color:#c4b5fd!important;border-color:#7c3aed!important}
+  .arch2-plane-qual{background:#78350f!important;color:#fcd34d!important;border-color:#d97706!important}
+  .arch2-chip{background:var(--color-background-secondary,#333)!important;color:var(--color-text-secondary,#ccc)!important;border-color:var(--color-border-tertiary,#555)!important}
+  .arch2-chip:hover,.arch2-chip.arch2-chip-active{background:#1f6feb!important;color:#fff!important;border-color:#1f6feb!important}
+  .arch2-detail-panel{background:var(--color-background-secondary,#1e1e1e)!important;border-color:var(--color-border-tertiary,#444)!important}
+}
+.arch2-tier-name{font-weight:600;font-size:13px}
+.arch2-tier-sub{font-size:10px;color:var(--color-text-tertiary,#888)}
+.arch2-tier-chevron{font-size:14px;color:var(--color-text-tertiary,#888);transition:transform .15s}
+.arch2-tier.arch2-tier-open .arch2-tier-chevron{transform:rotate(90deg)}
+
+/* connector arrows */
+.arch2-arrow{text-align:center;font-size:9px;color:var(--color-text-tertiary,#999);margin:1px 0;letter-spacing:.5px}
+
+/* Depth 2: 4-plane grid */
+.arch2-depth2{display:none;margin-top:8px;padding-top:8px;border-top:1px solid var(--color-border-tertiary,#eee)}
+.arch2-tier.arch2-tier-open .arch2-depth2{display:block}
+.arch2-plane-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px}
+.arch2-plane-card{border-radius:8px;padding:7px 8px;font-size:10px;line-height:1.35;border:1px solid}
+.arch2-plane-ctrl{background:#eff6ff;color:#1e40af;border-color:#93c5fd}
+.arch2-plane-veh{background:#ecfdf5;color:#065f46;border-color:#6ee7b7}
+.arch2-plane-gov{background:#f5f3ff;color:#5b21b6;border-color:#c4b5fd}
+.arch2-plane-qual{background:#fffbeb;color:#92400e;border-color:#fcd34d}
+.arch2-plane-title{font-weight:700;font-size:11px;margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.arch2-plane-title .arch2-plane-icon{font-size:12px}
+.arch2-plane-desc{font-size:9px;opacity:.85;margin-bottom:4px}
+
+/* Component chips */
+.arch2-chip-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.arch2-chip{display:inline-block;font-size:8.5px;padding:2px 6px;border-radius:4px;background:var(--color-background-secondary,#f0f0f0);border:1px solid var(--color-border-tertiary,#ddd);cursor:pointer;font-family:var(--font-mono,monospace);transition:all .12s;font-weight:500}
+.arch2-chip:hover{background:#0969da;color:#fff;border-color:#0969da}
+.arch2-chip.arch2-chip-active{background:#0969da;color:#fff;border-color:#0969da}
+
+/* Depth 3: Detail sub-panel */
+.arch2-detail-panel{display:none;margin-top:8px;padding:10px 12px;border:1px solid var(--color-border-tertiary,#ddd);border-radius:8px;background:var(--color-background-secondary,#fafafa);font-size:10px;line-height:1.5}
+.arch2-detail-panel.arch2-detail-open{display:block}
+.arch2-detail-title{font-size:13px;font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.arch2-detail-close{font-size:16px;cursor:pointer;margin-left:auto;color:var(--color-text-tertiary,#888);padding:0 4px}
+.arch2-detail-close:hover{color:var(--color-text-primary,#333)}
+.arch2-detail-section{margin-bottom:8px}
+.arch2-detail-section-title{font-weight:700;font-size:10px;margin-bottom:3px;color:var(--color-text-primary,#333);text-transform:uppercase;letter-spacing:.4px}
+.arch2-detail-desc{color:var(--color-text-secondary,#555);margin-bottom:6px}
+.arch2-detail-table{width:100%;border-collapse:collapse;font-size:9px;margin-top:4px}
+.arch2-detail-table th,.arch2-detail-table td{border:1px solid var(--color-border-tertiary,#ddd);padding:3px 6px;text-align:left}
+.arch2-detail-table th{background:var(--color-background-secondary,#f0f0f0);font-weight:600}
+.arch2-detail-io{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.arch2-detail-io-box{padding:5px 7px;border-radius:6px;border:1px solid var(--color-border-tertiary,#ddd)}
+.arch2-detail-io-box b{display:block;font-size:9px;margin-bottom:2px}
+.arch2-detail-e2e-steps{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.arch2-detail-e2e-tag{font-size:8px;padding:1px 5px;border-radius:3px;background:#dbeafe;color:#1e40af;font-weight:600}
+
+/* Cross-cutting sections */
+.arch2-xcut{margin-top:10px}
+.arch2-xcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.arch2-xcut-box{border:1px solid var(--color-border-tertiary,#ddd);border-radius:8px;padding:8px 10px;font-size:10px;line-height:1.45;color:var(--color-text-secondary,#555)}
+.arch2-xcut-box b{display:block;font-size:11px;font-weight:700;color:var(--color-text-primary,#333);margin-bottom:4px}
+.arch2-xcut-item{padding:2px 5px;margin:1px 0;border-left:2.5px solid #0969da;background:var(--color-background-secondary,#f5f5f5);font-size:9px;color:var(--color-text-secondary,#555);border-radius:0 3px 3px 0}
+.arch2-xcut-item.arch2-nogo{border-left-color:#dc2626;background:#fef2f2;color:#991b1b}
+@media(prefers-color-scheme:dark){.arch2-xcut-item.arch2-nogo{background:#450a0a;color:#fca5a5}}
+.arch2-tag-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.arch2-flag-tag{font-size:8.5px;padding:2px 6px;border-radius:3px;background:var(--color-background-secondary,#eee);border:1px solid var(--color-border-tertiary,#ddd);font-family:var(--font-mono,monospace)}
+.arch2-intf-tag{font-size:8.5px;padding:2px 6px;border-radius:3px;background:#eff6ff;color:#1e40af;border:1px solid #93c5fd;font-weight:500}
+.arch2-formula{margin-top:6px;padding:6px 10px;background:var(--color-background-secondary,#f5f5f5);border-radius:6px;font-size:9px;font-family:var(--font-mono,monospace);color:var(--color-text-tertiary,#888);line-height:1.5}

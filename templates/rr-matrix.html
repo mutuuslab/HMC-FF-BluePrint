@@ -1,0 +1,30 @@
+<div class="rr">
+<div class="rr-header">
+  <div>
+    <div class="rr-title">E2E Data Flow — R&R (Roles & Responsibilities)</div>
+    <div class="rr-sub">10-Step E2E 프로세스 × 15개 역할 — Process(Input→Task→Output) 관점의 RACI 매트릭스</div>
+  </div>
+  <div class="rr-tabs">
+    <div class="rr-tab on" onclick="rrView('matrix')">RACI Matrix</div>
+    <div class="rr-tab" onclick="rrView('cards')">Role Cards</div>
+  </div>
+</div>
+<div class="rr-legend">
+  <span class="rr-leg-r">R</span> Responsible
+  <span class="rr-leg-a">A</span> Accountable
+  <span class="rr-leg-c">C</span> Consulted
+  <span class="rr-leg-i">I</span> Informed
+  <span style="margin-left:6px;border-left:1px solid var(--color-border-tertiary);padding-left:6px">
+    <span class="rr-layer rr-ly-platform">Platform</span>
+    <span class="rr-layer rr-ly-feature">Feature</span>
+    <span class="rr-layer rr-ly-governance">Governance</span>
+  </span>
+  <span style="margin-left:6px;border-left:1px solid var(--color-border-tertiary);padding-left:6px">
+    Process = <b>Input</b> → <b>Task</b> → <b>Output</b>
+  </span>
+</div>
+
+<div id="rrMatrixWrap" class="rr-matrix-wrap"></div>
+<div id="rrCardsWrap" style="display:none"></div>
+<div class="rr-detail" id="rrDetail"></div>
+</div>

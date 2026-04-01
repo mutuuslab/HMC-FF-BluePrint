@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HMC Feature Flag Blueprint</title>
+<link rel="stylesheet" href="css/common.css">
 <style>
 :root {
   --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -377,90 +378,7 @@ body {
   </div>
 </div>
 
-<script>
-const pages = {
-  p1: 'ff_4plane_4tier_architecture.html',
-  p2: 'ff_4plane_4tier_arch_v2.html',
-  p3: 'ff_architecture_blueprint_part3.html',
-  p4: 'ff_arch_blueprint_mono.html',
-  p5: 'ff_arch_blueprint_mono_v2.html',
-  p6: 'ff_e2e_data_3phase_lifecycle.html',
-  p7: 'ff_e2e_devops_dataflow (1).html',
-  p8: 'ff_devops_e2e_single_blueprint.html',
-  p9: 'ff_vmodel_e2e_interactive.html',
-  p10: 'devops_infinity_ff_bill_of_features.svg',
-  p11: 'ff_e2e_dataflow_process.html',
-  p12: 'ff_e2e_rr_responsibility.html',
-};
-
-const loaded = {};
-
-async function loadPage(id) {
-  if (loaded[id]) return;
-  try {
-    const url = pages[id];
-    const resp = await fetch(url);
-    const container = document.getElementById('content-' + id);
-
-    // SVG files
-    if (url.endsWith('.svg')) {
-      const svgText = await resp.text();
-      container.innerHTML = svgText;
-      const svg = container.querySelector('svg');
-      if (svg) {
-        svg.style.maxWidth = '100%';
-        svg.style.height = 'auto';
-      }
-      loaded[id] = true;
-      return;
-    }
-
-    // HTML files
-    const html = await resp.text();
-    const styleMatch = html.match(/<style>([\s\S]*?)<\/style>/);
-    const scriptMatch = html.match(/<script>([\s\S]*?)<\/script>/);
-    let body = html;
-    if (styleMatch) body = body.replace(styleMatch[0], '');
-    if (scriptMatch) body = body.replace(scriptMatch[0], '');
-
-    if (styleMatch) {
-      const scopedStyle = document.createElement('style');
-      scopedStyle.textContent = styleMatch[1];
-      container.appendChild(scopedStyle);
-    }
-    const div = document.createElement('div');
-    div.className = 'w wrap';
-    div.innerHTML = body.trim();
-    container.appendChild(div);
-
-    if (scriptMatch) {
-      const script = document.createElement('script');
-      script.textContent = scriptMatch[1];
-      container.appendChild(script);
-    }
-    loaded[id] = true;
-  } catch (e) {
-    document.getElementById('content-' + id).innerHTML =
-      '<p style="color:red">Failed to load: ' + pages[id] + '</p>';
-  }
-}
-
-function switchPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(pageId).classList.add('active');
-  document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
-  if (pageId !== 'overview') loadPage(pageId);
-}
-
-function goTo(pageId) {
-  switchPage(pageId);
-}
-
-// Tab click
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => switchPage(tab.dataset.page));
-});
-</script>
+<script src="js/models/e2e-steps.js"></script>
+<script src="js/controllers/app.js"></script>
 </body>
 </html>
