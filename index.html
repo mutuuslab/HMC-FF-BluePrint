@@ -194,6 +194,7 @@ body {
   <div class="tab" data-page="p9">V-Model E2E Toolchain</div>
   <div class="tab" data-page="p10">DevOps Infinity BoF</div>
   <div class="tab" data-page="p11">E2E Data Flow Process</div>
+  <div class="tab" data-page="p12">E2E R&R Matrix</div>
 </div>
 
 <div class="content">
@@ -257,6 +258,11 @@ body {
           <h3>E2E Data Flow Process <span class="badge badge-new">NEW</span></h3>
           <p>10-Step Happy Path + 8 Exception Paths — Cloud↔Edge↔Vehicle↔ECU 순환 데이터 흐름 + 13 Data Objects</p>
           <span class="card-tag">ff_e2e_dataflow_process.html</span>
+        </div>
+        <div class="card" onclick="goTo('p12')">
+          <h3>E2E R&R Matrix <span class="badge badge-new">NEW</span></h3>
+          <p>14개 역할 × 10-Step RACI 매트릭스 — 담당 역할 관점의 E2E Data Flow + Deploy/Release 권한 분리</p>
+          <span class="card-tag">ff_e2e_rr_responsibility.html</span>
         </div>
       </div>
     </div>
@@ -360,6 +366,15 @@ body {
       <div id="content-p11"></div>
     </div>
   </div>
+
+  <!-- Page 12: E2E R&R Matrix -->
+  <div class="page" id="p12">
+    <div class="page-inner">
+      <div class="page-title">E2E R&R Matrix <span class="badge badge-new">NEW</span></div>
+      <div class="page-desc">14 Roles × 10 Steps RACI Matrix + Role Cards + Deploy/Release 권한 분리</div>
+      <div id="content-p12"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -375,6 +390,7 @@ const pages = {
   p9: 'ff_vmodel_e2e_toolchain.svg',
   p10: 'devops_infinity_ff_bill_of_features.svg',
   p11: 'ff_e2e_dataflow_process.html',
+  p12: 'ff_e2e_rr_responsibility.html',
 };
 
 const loaded = {};
